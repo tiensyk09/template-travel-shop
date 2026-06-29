@@ -8,19 +8,19 @@ export async function generateMetadata({ searchParams }) {
   const categorySlug = params.category || '';
   const searchQ = params.q || '';
   
-  let title = 'Tất cả sản phẩm | FPT Long Châu';
+  let title = 'Tất cả sản phẩm | Sâm Ngọc Linh';
   if (categorySlug) {
     const cats = await query('SELECT name FROM shop_categories WHERE slug = ?', [categorySlug]);
     if (cats.length > 0) {
-      title = `${cats[0].name} | FPT Long Châu`;
+      title = `${cats[0].name} | Sâm Ngọc Linh`;
     }
   } else if (searchQ) {
-    title = `Tìm kiếm: "${searchQ}" | FPT Long Châu`;
+    title = `Tìm kiếm: "${searchQ}" | Sâm Ngọc Linh`;
   }
   
   return {
     title,
-    description: 'Mua thực phẩm chức năng, thuốc kê đơn, dược mỹ phẩm chính hãng tại FPT Long Châu.'
+    description: 'Mua sâm Ngọc Linh rừng tự nhiên, sâm dây Ngọc Linh, mật ong rừng nguyên chất chính gốc Kon Tum tại Ngọc Linh Xanh.'
   };
 }
 

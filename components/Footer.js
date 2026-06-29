@@ -28,7 +28,7 @@ export default function Footer() {
         {/* Column 2: Về Chúng Tôi */}
         <div>
           <h3 className="text-xs font-bold text-teal-950 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">VỀ CHÚNG TÔI</h3>
-          <ul className="space-y-2.5 text-xs font-medium text-gray-500">
+          <ul className="space-y-2.5 text-xs font-medium text-gray-500" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             <li><Link href="/about" className="hover:text-teal-700 transition-colors">Giới thiệu</Link></li>
             <li><Link href="#" className="hover:text-teal-700 transition-colors">Điều khoản sử dụng</Link></li>
             <li><Link href="#" className="hover:text-teal-700 transition-colors">Chính sách bảo mật</Link></li>
@@ -40,7 +40,7 @@ export default function Footer() {
         {/* Column 3: Hỗ Trợ Khách Hàng */}
         <div>
           <h3 className="text-xs font-bold text-teal-950 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">HỖ TRỢ KHÁCH HÀNG</h3>
-          <ul className="space-y-2.5 text-xs font-medium text-gray-500">
+          <ul className="space-y-2.5 text-xs font-medium text-gray-500" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             <li><Link href="#" className="hover:text-teal-700 transition-colors">Hướng dẫn mua hàng</Link></li>
             <li><Link href="#" className="hover:text-teal-700 transition-colors">Phương thức thanh toán</Link></li>
             <li><Link href="#" className="hover:text-teal-700 transition-colors">Chính sách vận chuyển</Link></li>
@@ -52,7 +52,7 @@ export default function Footer() {
         {/* Column 4: Thông Tin Liên Hệ */}
         <div>
           <h3 className="text-xs font-bold text-teal-950 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">THÔNG TIN LIÊN HỆ</h3>
-          <ul className="space-y-3 text-xs font-medium text-gray-500">
+          <ul className="space-y-3 text-xs font-medium text-gray-500" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             <li className="flex items-start gap-2">📍 <span>Xã Ngọc Linh, huyện Đăk Glei, tỉnh Kon Tum</span></li>
             <li className="flex items-center gap-2">📞 <span className="font-bold text-teal-900">0769.442.777</span></li>
             <li className="flex items-center gap-2">✉️ <span>ngoclinhxanhcom@gmail.com</span></li>

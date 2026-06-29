@@ -1,10 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCart } from '@/components/CartContext';
 
 export default function ProductGrid() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
+  const [addingId, setAddingId] = useState(null);
 
   const fallbackProducts = [
     {
@@ -95,7 +98,8 @@ export default function ProductGrid() {
             slug: p.slug,
             is_featured: p.is_featured,
             is_flash_sale: p.is_flash_sale,
-            flash_sale_price: p.flash_sale_price
+            flash_sale_price: p.flash_sale_price,
+            unit: p.unit
           })));
         } else {
           setProducts(fallbackProducts);
@@ -105,13 +109,33 @@ export default function ProductGrid() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleAddToCart = (e, prod) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAddingId(prod.id);
+    
+    const productForCart = {
+      id: prod.id,
+      name: prod.name,
+      price: prod.price,
+      thumbnail: prod.image,
+      unit: prod.unit || 'Hộp'
+    };
+    
+    addItem(productForCart, null, 1);
+    
+    setTimeout(() => {
+      setAddingId(null);
+    }, 800);
+  };
+
   return (
     <section id="featured-products" className="py-12 bg-white scroll-mt-20">
       <div className="container mx-auto px-4">
         {/* Section Heading */}
         <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-black text-teal-950 uppercase tracking-tight flex items-center justify-center gap-3">
-            <span>🏝️</span> SẢN PHẨM NỔI BẬT <span>⛵</span>
+          <h2 style={{ color: '#1a2e1e' }} className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center justify-center gap-3">
+            <span>🌿</span> SẢN PHẨM NỔI BẬT <span>🌱</span>
           </h2>
           <div className="w-16 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
         </div>
@@ -171,8 +195,28 @@ export default function ProductGrid() {
                         <div className="text-3xs text-gray-400 line-through font-medium">{prod.original_price.toLocaleString('vi-VN')}đ</div>
                       )}
                     </div>
-                    <button className="w-8 h-8 rounded-lg bg-teal-700 hover:bg-teal-800 text-white flex items-center justify-center shadow-sm hover:scale-105 transition-all">
-                      🛒
+                    <button
+                      onClick={(e) => handleAddToCart(e, prod)}
+                      disabled={addingId === prod.id}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: addingId === prod.id ? '#10b981' : '#e8f5ec',
+                        color: addingId === prod.id ? '#ffffff' : '#0d6832',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 2px 6px rgba(13, 104, 50, 0.1)'
+                      }}
+                      className={addingId !== prod.id ? "home-cart-btn-hover" : ""}
+                    >
+                      {addingId === prod.id ? '✓' : '🛒'}
                     </button>
                   </div>
                 </div>
@@ -181,6 +225,14 @@ export default function ProductGrid() {
           })}
         </div>
       </div>
+      
+      <style jsx global>{`
+        .home-cart-btn-hover:hover {
+          background-color: #0d6832 !important;
+          color: #ffffff !important;
+          transform: scale(1.1);
+        }
+      `}</style>
     </section>
   );
 }

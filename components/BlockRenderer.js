@@ -14,6 +14,8 @@ export default function BlockRenderer({ blocks = [] }) {
           switch (block.type) {
             case 'hero':
               return <HeroBlock key={block.id} configs={block.configs} />;
+            case 'features':
+              return <FeaturesBlock key={block.id} configs={block.configs} />;
             case 'flashsale':
               return <FlashSaleBlock key={block.id} configs={block.configs} />;
             case 'categories':
@@ -39,107 +41,83 @@ export default function BlockRenderer({ blocks = [] }) {
 }
 
 // ─── 1. HERO BLOCK ───────────────────────────────────────────
-const HERO_SLIDES = [
-  { img: '/images/Theme_layer_PC_1440_X704_05f6eb7774.png', bg: '#003d9e' },
-  { img: '/images/Theme_layer_PC_1440_X704_1_f58428afe7.jpg', bg: '#004db3' },
-  { img: '/images/Desk_1440x700_9737b7dfde.png', bg: '#003090' },
-];
-
-const SIDE_BANNERS = [
-  '/images/Banner_Web_PC_805x246_132cc5d5a3.png',
-  '/images/Banner_Web_PC_805x246_bee3a805e9.png',
-];
-
-const QUICK_ACTIONS = [
-  { icon: '💊', title: 'Cần mua thuốc', sub: 'Đặt hàng nhanh chóng' },
-  { icon: '👨‍⚕️', title: 'Tư vấn với Dược Sĩ', sub: 'Miễn phí 24/7' },
-  { icon: '📋', title: 'Đơn của tôi', sub: 'Theo dõi đơn hàng' },
-  { icon: '📍', title: 'Tìm nhà thuốc', sub: 'Gần tôi nhất' },
-  { icon: '💉', title: 'Tiêm Vắc xin', sub: 'Đặt lịch tiêm chủng' },
-  { icon: '🔍', title: 'Tra thuốc chính hãng', sub: 'Kiểm tra nguồn gốc' },
-];
-
 function HeroBlock({ configs = {} }) {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const totalSlides = HERO_SLIDES.length;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % totalSlides);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [totalSlides]);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.open(`https://nhathuoclongchau.com.vn/tim-kiem?q=${encodeURIComponent(searchQuery)}`, '_blank');
-    }
-  };
-
-  const prev = () => setCurrentSlide(p => (p - 1 + totalSlides) % totalSlides);
-  const next = () => setCurrentSlide(p => (p + 1) % totalSlides);
-
   return (
-    <div>
-      {/* Hero slider + sidebar */}
-      <div className="lc-hero-section">
-        <div className="lc-hero-inner">
-          {/* Main slider */}
-          <div className="lc-hero-slider">
-            {HERO_SLIDES.map((slide, i) => (
-              <div key={i} className={`lc-hero-slide${i === currentSlide ? ' active' : ''}`}>
-                <img
-                  src={slide.img}
-                  alt={`Banner ${i + 1}`}
-                  style={{ backgroundColor: slide.bg }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.style.background = slide.bg;
-                    e.target.parentElement.innerHTML = `
-                      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#fff;gap:12px;padding:24px;text-align:center;">
-                        <div style="font-size:48px;">💊</div>
-                        <div style="font-size:28px;font-weight:900;letter-spacing:-0.5px;">${configs.title || 'Nhà thuốc FPT Long Châu'}</div>
-                        <div style="font-size:14px;opacity:0.8;">${configs.description || 'Chuyên thuốc theo đơn · Tư vấn 24/7 · Giao hàng nhanh'}</div>
-                      </div>`;
-                  }}
-                />
-              </div>
-            ))}
-            <button className="lc-slider-btn prev" onClick={prev}>‹</button>
-            <button className="lc-slider-btn next" onClick={next}>›</button>
-            <div className="lc-slider-dots">
-              {HERO_SLIDES.map((_, i) => (
-                <div key={i} className={`lc-dot${i === currentSlide ? ' active' : ''}`} onClick={() => setCurrentSlide(i)} />
-              ))}
-            </div>
-          </div>
-
-          {/* Sidebar banners */}
-          <div className="lc-hero-sidebar">
-            {SIDE_BANNERS.map((src, i) => (
-              <div key={i} className="lc-hero-side-banner">
-                <img src={src} alt={`Side banner ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} onError={(e) => e.target.style.display='none'} />
-              </div>
-            ))}
-          </div>
-        </div>
+    <div style={{
+      background: 'linear-gradient(135deg, #0d6832 0%, #052e16 100%)',
+      color: '#ffffff',
+      borderRadius: '16px',
+      padding: '56px 32px',
+      textAlign: 'center',
+      marginBottom: '32px',
+      boxShadow: '0 4px 24px rgba(13, 104, 50, 0.15)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <div style={{ position: 'absolute', right: '-20px', bottom: '-20px', fontSize: '130px', opacity: 0.08, pointerEvents: 'none' }}>
+        🌿
       </div>
+      <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '16px', color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
+        {configs.title || 'Ngọc Linh Xanh'}
+      </h2>
+      <p style={{ fontSize: '16px', lineHeight: 1.7, opacity: 0.9, maxWidth: '750px', margin: '0 auto 28px', color: '#e8f5ec' }}>
+        {configs.description || ''}
+      </p>
+      {configs.buttonText && configs.buttonLink && (
+        <Link
+          href={configs.buttonLink}
+          style={{
+            display: 'inline-block',
+            background: '#d97706',
+            color: '#ffffff',
+            padding: '12px 32px',
+            borderRadius: '30px',
+            fontWeight: 700,
+            fontSize: '14px',
+            textDecoration: 'none',
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 14px rgba(217, 119, 6, 0.4)'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(217, 119, 6, 0.5)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(217, 119, 6, 0.4)'; }}
+        >
+          {configs.buttonText}
+        </Link>
+      )}
+    </div>
+  );
+}
 
-      {/* Quick action row */}
-      <div className="lc-quick-actions">
-        <div className="lc-quick-actions-inner">
-          {QUICK_ACTIONS.map((action, i) => (
-            <div key={i} className="lc-quick-action">
-              <div className="lc-quick-action-icon">{action.icon}</div>
-              <div className="lc-quick-action-text">
-                <strong>{action.title}</strong>
-                <span>{action.sub}</span>
-              </div>
-            </div>
-          ))}
+// ─── 1.1 FEATURES BLOCK ───────────────────────────────────────────
+function FeaturesBlock({ configs = {} }) {
+  const items = configs.items || [];
+  return (
+    <div style={{ padding: '32px 0', marginBottom: '32px' }}>
+      {configs.title && (
+        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+          {configs.tag && (
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#0d6832', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+              {configs.tag}
+            </span>
+          )}
+          <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#1a2e1e' }}>{configs.title}</h3>
+          {configs.description && (
+            <p style={{ color: '#6b7280', fontSize: '14.5px', marginTop: '10px', maxWidth: '600px', margin: '10px auto 0' }}>{configs.description}</p>
+          )}
         </div>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        {items.map((item, idx) => (
+          <div key={idx} style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.02)', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+            <div style={{ background: '#e8f5ec', color: '#0d6832', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
+              {idx === 0 ? '🌿' : idx === 1 ? '✨' : '💖'}
+            </div>
+            <div>
+              <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#1a2e1e', margin: '0 0 8px 0' }}>{item.title}</h4>
+              <p style={{ fontSize: '13.5px', color: '#4b5563', lineHeight: 1.55, margin: 0 }}>{item.desc}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -580,7 +558,7 @@ function RecentPostsBlock({ configs = {} }) {
                   </div>
                   <div className="lc-blog-row-info">
                     <h4><Link href={`/posts/${post.slug}`}>{post.title}</Link></h4>
-                    <span>Dược sĩ Long Châu · {new Date(post.created_at).toLocaleDateString('vi-VN')}</span>
+                    <span>{post.author_name || 'Ngọc Linh Xanh'} · {new Date(post.created_at).toLocaleDateString('vi-VN')}</span>
                   </div>
                 </div>
               ))}
