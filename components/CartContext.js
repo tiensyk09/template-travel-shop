@@ -68,15 +68,20 @@ function ToastItem({ toast, onRemove }) {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [wishlist, setWishlist] = useState([]);
   const [hydrated, setHydrated] = useState(false);
   const [toasts, setToasts] = useState([]);
 
   // Hydrate from localStorage on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('lc_cart');
-      if (stored) {
-        dispatch({ type: 'HYDRATE', payload: JSON.parse(stored) });
+      const storedCart = localStorage.getItem('lc_cart');
+      if (storedCart) {
+        dispatch({ type: 'HYDRATE', payload: JSON.parse(storedCart) });
+      }
+      const storedWishlist = localStorage.getItem('lc_wishlist');
+      if (storedWishlist) {
+        setWishlist(JSON.parse(storedWishlist));
       }
     } catch { }
     setHydrated(true);
@@ -89,6 +94,12 @@ export function CartProvider({ children }) {
     }
   }, [state, hydrated]);
 
+  useEffect(() => {
+    if (hydrated) {
+      localStorage.setItem('lc_wishlist', JSON.stringify(wishlist));
+    }
+  }, [wishlist, hydrated]);
+
   const showToast = (message, type = 'success') => {
     const id = Date.now() + Math.random().toString(36).substring(2, 9);
     setToasts(prev => [...prev, { id, message, type }]);
@@ -96,6 +107,21 @@ export function CartProvider({ children }) {
 
   const removeToast = (id) => {
     setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const toggleWishlist = (product) => {
+    const exists = wishlist.some(item => item.id === product.id);
+    if (exists) {
+      setWishlist(prev => prev.filter(item => item.id !== product.id));
+      showToast(`Đã xóa "${product.name}" khỏi danh sách yêu thích.`, 'info');
+    } else {
+      setWishlist(prev => [...prev, product]);
+      showToast(`Đã thêm "${product.name}" vào danh sách yêu thích!`, 'success');
+    }
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlist.some(item => item.id === productId);
   };
 
   const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
@@ -114,6 +140,9 @@ export function CartProvider({ children }) {
       removeItem: (key) => dispatch({ type: 'REMOVE_ITEM', payload: { key } }),
       updateQty: (key, quantity) => dispatch({ type: 'UPDATE_QTY', payload: { key, quantity } }),
       clearCart: () => dispatch({ type: 'CLEAR' }),
+      wishlist,
+      toggleWishlist,
+      isInWishlist,
       showToast,
       hydrated,
     }}>

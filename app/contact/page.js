@@ -64,7 +64,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#1a2e1e', margin: '0 0 6px 0' }}>Trụ sở chính</h4>
-                  <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.5, margin: 0 }}>Xã Ngọc Linh, huyện Đăk Glei, tỉnh Kon Tum</p>
+                  <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.5, margin: 0 }}>Xã Trà Linh, huyện Nam Trà My, tỉnh Quảng Nam</p>
                 </div>
               </div>
 
@@ -104,7 +104,7 @@ export default function ContactPage() {
             <div style={{ background: 'linear-gradient(135deg, #0d6832 0%, #052e16 100%)', color: '#ffffff', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 20px rgba(13, 104, 50, 0.1)' }}>
               <h4 style={{ fontSize: '15px', fontWeight: 800, margin: '0 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ngọc Linh Xanh</h4>
               <p style={{ fontSize: '13px', lineHeight: 1.5, opacity: 0.9, margin: 0 }}>
-                Giấy chứng nhận đăng ký hộ kinh doanh số: 38B8000132 do Phòng Tài chính - Kế hoạch Huyện Đăk Glei - Tỉnh Kon Tum cấp ngày 12/03/2019.
+                Giấy chứng nhận đăng ký hộ kinh doanh số: 38B8000132 do Phòng Tài chính - Kế hoạch Huyện Nam Trà My - Tỉnh Quảng Nam cấp ngày 12/03/2019.
               </p>
             </div>
 

@@ -7,7 +7,8 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCatOpen, setIsCatOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { totalItems, subtotal } = useCart();
+  const { totalItems, subtotal, wishlist } = useCart();
+  const wishlistCount = wishlist ? wishlist.length : 0;
 
   const categories = [
     { title: 'Sâm Ngọc Linh', icon: '🌱', link: '/products?category=sam-ngoc-linh' },
@@ -84,8 +85,15 @@ export default function Header() {
               </div>
             </Link>
 
-            <Link href="#" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
-              <span style={{ fontSize: 22 }}>🤍</span>
+            <Link href="/wishlist" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
+              <div style={{ position: 'relative' }}>
+                <span style={{ fontSize: 22 }}>❤️</span>
+                {wishlistCount > 0 && (
+                  <span style={{ position: 'absolute', top: -4, right: -6, backgroundColor: '#d97706', color: '#fff', fontSize: 9, fontWeight: 800, width: 15, height: 15, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
               <div>
                 <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 500, lineHeight: 1.2 }}>Yêu thích</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1f2937', lineHeight: 1.2 }}>Sản phẩm</div>

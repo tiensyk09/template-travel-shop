@@ -11,7 +11,7 @@ export default function ProductDetailClient({
   related = []
 }) {
   const router = useRouter();
-  const { addItem, showToast } = useCart();
+  const { addItem, showToast, toggleWishlist, isInWishlist } = useCart();
   const [selectedVariant, setSelectedVariant] = useState(variants[0] || null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -192,7 +192,7 @@ export default function ProductDetailClient({
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }} className="product-actions-wrap">
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }} className="product-actions-wrap">
                 <button
                   onClick={() => handleAddToCart(false)}
                   disabled={adding}
@@ -232,6 +232,29 @@ export default function ProductDetailClient({
                   className="product-buy-btn"
                 >
                   Mua ngay
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    border: '1.5px solid ' + (isInWishlist(product.id) ? '#fee2e2' : '#cbd5e1'),
+                    background: isInWishlist(product.id) ? '#fee2e2' : '#ffffff',
+                    color: '#ef4444',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                    flexShrink: 0
+                  }}
+                  className="product-wishlist-btn-detail"
+                  title={isInWishlist(product.id) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+                >
+                  {isInWishlist(product.id) ? '❤️' : '🤍'}
                 </button>
               </div>
             </div>
@@ -425,6 +448,10 @@ export default function ProductDetailClient({
         }
         .product-submit-review-btn:hover {
           background-color: #0b5328 !important;
+        }
+        .product-wishlist-btn-detail:hover {
+          transform: scale(1.08);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
         }
 
         @media (max-width: 900px) {

@@ -53,13 +53,13 @@ export default function Footer() {
         <div>
           <h3 className="text-xs font-bold text-teal-950 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">THÔNG TIN LIÊN HỆ</h3>
           <ul className="space-y-3 text-xs font-medium text-gray-500" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            <li className="flex items-start gap-2">📍 <span>Xã Ngọc Linh, huyện Đăk Glei, tỉnh Kon Tum</span></li>
+            <li className="flex items-start gap-2">📍 <span>Xã Trà Linh, huyện Nam Trà My, tỉnh Quảng Nam</span></li>
             <li className="flex items-center gap-2">📞 <span className="font-bold text-teal-900">0769.442.777</span></li>
             <li className="flex items-center gap-2">✉️ <span>ngoclinhxanhcom@gmail.com</span></li>
             <li className="flex items-center gap-2">🌐 <span>www.ngoclinhxanh.com</span></li>
           </ul>
           <div className="mt-4 text-3xs text-gray-400 font-medium leading-relaxed">
-            GCNĐKKD số: 38B8000132, cấp bởi Phòng TCKH H.Đăk Glei – T.Kon Tum.
+            GCNĐKKD số: 38B8000132, cấp bởi Phòng TCKH H.Nam Trà My – T.Quảng Nam.
           </div>
         </div>
       </div>

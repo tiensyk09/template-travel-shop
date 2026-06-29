@@ -34,7 +34,7 @@ export default function DestinationsPage() {
     {
       id: 4,
       title: 'Vườn Trồng Sâm Dưới Tán Rừng Già',
-      location: 'Xã Ngọc Linh, Đăk Glei, Kon Tum',
+      location: 'Xã Trà Linh, Nam Trà My, Quảng Nam',
       elevation: 'Độ cao: > 1.800m',
       description: 'Trại sâm Ngọc Linh Xanh được trồng bán hoang dã sâu dưới tán rừng già nguyên sinh. Sâm được nuôi dưỡng hoàn toàn tự nhiên bởi thảm mục rừng và sương giá, không có sự can thiệp của hóa chất bảo vệ thực vật.',
       image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80',
