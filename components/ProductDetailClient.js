@@ -63,30 +63,31 @@ export default function ProductDetailClient({
 
   return (
     <div>
-      <main style={{ background: '#f4f6f9', padding: '24px 0 60px' }}>
+      <main style={{ background: '#f5faf6', padding: '24px 0 60px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 20px' }}>
+          
           {/* Breadcrumbs */}
-          <div style={{ fontSize: '13px', color: 'var(--lc-muted)', marginBottom: '16px', display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <Link href="/" style={{ color: 'var(--lc-text)', textDecoration: 'none' }}>Trang chủ</Link>
+          <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link href="/" style={{ color: '#374151', textDecoration: 'none' }}>Trang chủ</Link>
             <span>/</span>
-            <Link href="/products" style={{ color: 'var(--lc-text)', textDecoration: 'none' }}>Sản phẩm</Link>
+            <Link href="/products" style={{ color: '#374151', textDecoration: 'none' }}>Sản phẩm</Link>
             <span>/</span>
-            <Link href={`/products?category=${product.category_slug}`} style={{ color: 'var(--lc-text)', textDecoration: 'none' }}>
+            <Link href={`/products?category=${product.category_slug}`} style={{ color: '#374151', textDecoration: 'none' }}>
               {product.category_name}
             </Link>
             <span>/</span>
-            <span style={{ color: 'var(--lc-blue)', fontWeight: 600 }}>{product.name}</span>
+            <span style={{ color: '#0d6832', fontWeight: 600 }}>{product.name}</span>
           </div>
 
           {/* Product Info Card */}
-          <div style={{ background: '#fff', borderRadius: '16px', padding: '24px', display: 'grid', gridTemplateColumns: '460px 1fr', gap: '40px', border: '1px solid var(--lc-border)', marginBottom: '24px' }}>
+          <div className="product-detail-grid" style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid #e5e7eb', marginBottom: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
             {/* Image Gallery */}
             <div>
-              <div style={{ width: '100%', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee', borderRadius: '12px', padding: '20px', overflow: 'hidden' }}>
+              <div className="product-image-box" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                 <img
-                  src={product.thumbnail || '/images/Vien_ho_tro_phat_trien_nao_bo_suc_khoe_cho_mat_Brauer_Baby_and_Kids_Ultra_Pure_DHA_00033687_79d080f5b6.png'}
+                  src={product.thumbnail || 'https://picsum.photos/400/400?random=' + product.id}
                   alt={product.name}
-                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '12px' }}
                   onError={(e) => {
                     e.target.src = 'https://picsum.photos/400/400?random=' + product.id;
                   }}
@@ -97,39 +98,39 @@ export default function ProductDetailClient({
             {/* Product Meta Details */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {product.brand && (
-                <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--lc-blue)', fontWeight: 800, marginBottom: '8px', display: 'block' }}>
+                <span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#0d6832', fontWeight: 800, marginBottom: '8px', display: 'block' }}>
                   Thương hiệu: {product.brand} | Xuất xứ: {product.origin || 'Đang cập nhật'}
                 </span>
               )}
-              <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--lc-blue-dark)', margin: '0 0 12px 0', lineHeight: '1.3' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: 950, color: '#1a2e1e', margin: '0 0 12px 0', lineHeight: '1.3' }}>
                 {product.name}
               </h1>
 
               {/* Ratings Summary */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', color: 'var(--lc-yellow)', fontSize: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', color: '#fbbf24', fontSize: '16px' }}>
                   {'★'.repeat(Math.round(product.rating || 5))}
                   {'☆'.repeat(5 - Math.round(product.rating || 5))}
                 </div>
-                <span style={{ fontSize: '13.5px', color: 'var(--lc-muted)' }}>
+                <span style={{ fontSize: '13.5px', color: '#6b7280' }}>
                   ({localReviews.length} đánh giá)
                 </span>
                 <span style={{ color: '#eee' }}>|</span>
-                <span style={{ fontSize: '13.5px', color: 'var(--lc-green)', fontWeight: 600 }}>
+                <span style={{ fontSize: '13.5px', color: '#16a34a', fontWeight: 600 }}>
                   ✓ Còn hàng (Còn {selectedVariant ? selectedVariant.stock : product.stock} {selectedVariant ? selectedVariant.name : (product.unit || 'Hộp')})
                 </span>
               </div>
 
               {/* Price row */}
-              <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                <span style={{ fontSize: '28px', fontWeight: 800, color: 'var(--lc-blue-dark)' }}>
+              <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '28px', fontWeight: 900, color: '#0d6832' }}>
                   {displayPrice.toLocaleString('vi-VN')}đ
                 </span>
-                <span style={{ fontSize: '14px', color: 'var(--lc-muted)' }}>
+                <span style={{ fontSize: '14px', color: '#6b7280' }}>
                   / {selectedVariant ? selectedVariant.name : (product.unit || 'Hộp')}
                 </span>
                 {originalPrice && originalPrice > displayPrice && (
-                  <span style={{ fontSize: '16px', color: 'var(--lc-muted)', textDecoration: 'line-through' }}>
+                  <span style={{ fontSize: '16px', color: '#9ca3af', textDecoration: 'line-through' }}>
                     {originalPrice.toLocaleString('vi-VN')}đ
                   </span>
                 )}
@@ -138,7 +139,7 @@ export default function ProductDetailClient({
               {/* Variant Selector */}
               {variants.length > 0 && (
                 <div style={{ marginBottom: '20px' }}>
-                  <span style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: 'var(--lc-text)' }}>
+                  <span style={{ display: 'block', fontSize: '14px', fontWeight: 700, marginBottom: '8px', color: '#1a2e1e' }}>
                     Chọn Đơn Vị Tính:
                   </span>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -151,11 +152,11 @@ export default function ProductDetailClient({
                           style={{
                             padding: '8px 16px',
                             borderRadius: '8px',
-                            border: isSelected ? '2px solid var(--lc-blue)' : '1px solid #ccc',
-                            background: isSelected ? '#eef6ff' : '#fff',
-                            color: isSelected ? 'var(--lc-blue)' : 'var(--lc-text)',
+                            border: isSelected ? '2px solid #0d6832' : '1.5px solid #cbd5e1',
+                            background: isSelected ? '#f0fdf4' : '#fff',
+                            color: isSelected ? '#0d6832' : '#374151',
                             fontWeight: isSelected ? 700 : 500,
-                            fontSize: '13.5px',
+                            fontSize: '13px',
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                           }}
@@ -170,20 +171,20 @@ export default function ProductDetailClient({
 
               {/* Quantity */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '30px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--lc-text)' }}>Số lượng:</span>
-                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#1a2e1e' }}>Số lượng:</span>
+                <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
                   <button
                     onClick={() => handleQtyChange(-1)}
-                    style={{ width: '36px', height: '36px', border: 'none', background: '#f4f6f9', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}
+                    style={{ width: '36px', height: '36px', border: 'none', background: '#f8fafc', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', outline: 'none' }}
                   >
                     -
                   </button>
-                  <span style={{ width: '48px', textAlign: 'center', fontSize: '15px', fontWeight: 600 }}>
+                  <span style={{ width: '48px', textAlign: 'center', fontSize: '15px', fontWeight: 600, color: '#1a2e1e' }}>
                     {quantity}
                   </span>
                   <button
                     onClick={() => handleQtyChange(1)}
-                    style={{ width: '36px', height: '36px', border: 'none', background: '#f4f6f9', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}
+                    style={{ width: '36px', height: '36px', border: 'none', background: '#f8fafc', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', outline: 'none' }}
                   >
                     +
                   </button>
@@ -191,12 +192,13 @@ export default function ProductDetailClient({
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }} className="product-actions-wrap">
                 <button
                   onClick={() => handleAddToCart(false)}
                   disabled={adding}
                   style={{
                     flex: 1,
+                    minWidth: '160px',
                     padding: '14px 20px',
                     borderRadius: '30px',
                     border: '1.5px solid #0d6832',
@@ -207,6 +209,7 @@ export default function ProductDetailClient({
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
+                  className="product-cart-btn"
                 >
                   {adding ? 'Đang xử lý...' : 'Thêm vào giỏ hàng'}
                 </button>
@@ -215,16 +218,18 @@ export default function ProductDetailClient({
                   disabled={adding}
                   style={{
                     flex: 1,
+                    minWidth: '160px',
                     padding: '14px 20px',
                     borderRadius: '30px',
                     border: 'none',
-                    background: 'var(--lc-orange)',
+                    background: '#d97706',
                     color: '#fff',
                     fontSize: '15px',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
+                  className="product-buy-btn"
                 >
                   Mua ngay
                 </button>
@@ -233,18 +238,18 @@ export default function ProductDetailClient({
           </div>
 
           {/* Description & Reviews Tabs */}
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid var(--lc-border)', overflow: 'hidden', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', borderBottom: '1px solid #eee', background: '#f8fafc' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden', marginBottom: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
+            <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', background: '#f8fafc', flexWrap: 'wrap' }}>
               <button
                 onClick={() => setActiveTab('description')}
                 style={{
                   padding: '16px 24px',
                   border: 'none',
                   background: activeTab === 'description' ? '#fff' : 'transparent',
-                  borderBottom: activeTab === 'description' ? '3px solid var(--lc-blue)' : 'none',
+                  borderBottom: activeTab === 'description' ? '3px solid #0d6832' : 'none',
                   fontSize: '15px',
                   fontWeight: 700,
-                  color: activeTab === 'description' ? 'var(--lc-blue)' : 'var(--lc-text)',
+                  color: activeTab === 'description' ? '#0d6832' : '#374151',
                   cursor: 'pointer'
                 }}
               >
@@ -256,10 +261,10 @@ export default function ProductDetailClient({
                   padding: '16px 24px',
                   border: 'none',
                   background: activeTab === 'reviews' ? '#fff' : 'transparent',
-                  borderBottom: activeTab === 'reviews' ? '3px solid var(--lc-blue)' : 'none',
+                  borderBottom: activeTab === 'reviews' ? '3px solid #0d6832' : 'none',
                   fontSize: '15px',
                   fontWeight: 700,
-                  color: activeTab === 'reviews' ? 'var(--lc-blue)' : 'var(--lc-text)',
+                  color: activeTab === 'reviews' ? '#0d6832' : '#374151',
                   cursor: 'pointer'
                 }}
               >
@@ -269,9 +274,9 @@ export default function ProductDetailClient({
 
             <div style={{ padding: '24px' }}>
               {activeTab === 'description' ? (
-                <div style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--lc-text)' }}>
+                <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#374151' }}>
                   {product.short_description && (
-                    <p style={{ fontWeight: 600, fontSize: '16px', color: 'var(--lc-blue-dark)', marginBottom: '16px' }}>
+                    <p style={{ fontWeight: 700, fontSize: '16px', color: '#1a2e1e', marginBottom: '16px' }}>
                       {product.short_description}
                     </p>
                   )}
@@ -284,24 +289,24 @@ export default function ProductDetailClient({
                 <div>
                   {/* Reviews List */}
                   {localReviews.length === 0 ? (
-                    <p style={{ color: 'var(--lc-muted)', fontStyle: 'italic', textAlign: 'center', padding: '20px 0' }}>
+                    <p style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'center', padding: '20px 0' }}>
                       Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!
                     </p>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
                       {localReviews.map((rev) => (
-                        <div key={rev.id} style={{ borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <strong style={{ fontSize: '14.5px', color: 'var(--lc-text)' }}>{rev.reviewer_name}</strong>
-                            <span style={{ fontSize: '12px', color: 'var(--lc-muted)' }}>
+                        <div key={rev.id} style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                            <strong style={{ fontSize: '14.5px', color: '#1a2e1e' }}>{rev.reviewer_name}</strong>
+                            <span style={{ fontSize: '12px', color: '#6b7280' }}>
                               {new Date(rev.created_at).toLocaleDateString('vi-VN')}
                             </span>
                           </div>
-                          <div style={{ display: 'flex', color: 'var(--lc-yellow)', fontSize: '13px', marginBottom: '6px' }}>
+                          <div style={{ display: 'flex', color: '#fbbf24', fontSize: '13px', marginBottom: '6px' }}>
                             {'★'.repeat(rev.rating)}
                             {'☆'.repeat(5 - rev.rating)}
                           </div>
-                          <p style={{ margin: 0, fontSize: '14px', color: 'var(--lc-text)', lineHeight: '1.5' }}>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#374151', lineHeight: '1.5' }}>
                             {rev.comment}
                           </p>
                         </div>
@@ -311,27 +316,27 @@ export default function ProductDetailClient({
 
                   {/* Add Review Form */}
                   <form onSubmit={handleReviewSubmit} style={{ background: '#f8fafc', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0' }}>
-                    <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--lc-blue-dark)', margin: '0 0 16px 0' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#1a2e1e', margin: '0 0 16px 0' }}>
                       Viết đánh giá của bạn
                     </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                    <div className="product-review-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Tên của bạn *</label>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#4b5563', marginBottom: '6px' }}>Tên của bạn *</label>
                         <input
                           type="text"
                           required
                           value={reviewForm.name}
                           onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
-                          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '13.5px', outline: 'none' }}
-                          placeholder="Nhập tên"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none', boxSizing: 'border-box' }}
+                          placeholder="Nhập tên của bạn..."
                         />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Đánh giá sao *</label>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#4b5563', marginBottom: '6px' }}>Đánh giá sao *</label>
                         <select
                           value={reviewForm.rating}
                           onChange={(e) => setReviewForm({ ...reviewForm, rating: e.target.value })}
-                          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '13.5px', outline: 'none', background: '#fff', cursor: 'pointer' }}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}
                         >
                           <option value="5">5 sao (Rất tốt)</option>
                           <option value="4">4 sao (Tốt)</option>
@@ -342,19 +347,20 @@ export default function ProductDetailClient({
                       </div>
                     </div>
                     <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Bình luận của bạn *</label>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#4b5563', marginBottom: '6px' }}>Bình luận của bạn *</label>
                       <textarea
                         required
                         rows="4"
                         value={reviewForm.comment}
                         onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '13.5px', outline: 'none', resize: 'vertical' }}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
                         placeholder="Chia sẻ nhận xét của bạn về sản phẩm..."
                       />
                     </div>
                     <button
                       type="submit"
-                      style={{ background: 'var(--lc-blue)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}
+                      style={{ background: '#0d6832', color: '#fff', border: 'none', padding: '10px 28px', borderRadius: '20px', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}
+                      className="product-submit-review-btn"
                     >
                       Gửi đánh giá
                     </button>
@@ -367,29 +373,29 @@ export default function ProductDetailClient({
           {/* Related Products */}
           {related.length > 0 && (
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--lc-blue-dark)', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1a2e1e', marginBottom: '16px' }}>
                 Sản phẩm liên quan
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
                 {related.map((prod) => (
-                  <div key={prod.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid var(--lc-border)', padding: '16px', display: 'flex', flexDirection: 'column' }}>
+                  <div key={prod.id} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '16px', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
                     <Link href={`/products/${prod.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                       <div style={{ width: '100%', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
                         <img
-                          src={prod.thumbnail || '/images/Vien_ho_tro_phat_trien_nao_bo_suc_khoe_cho_mat_Brauer_Baby_and_Kids_Ultra_Pure_DHA_00033687_79d080f5b6.png'}
+                          src={prod.thumbnail || 'https://picsum.photos/150/150?random=' + prod.id}
                           alt={prod.name}
                           style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                           onError={(e) => { e.target.src = 'https://picsum.photos/150/150?random=' + prod.id; }}
                         />
                       </div>
-                      <h4 style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--lc-text)', margin: 0, height: '36px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.4' }}>
+                      <h4 style={{ fontSize: '13.5px', fontWeight: 700, color: '#374151', margin: 0, height: '38px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.4' }}>
                         {prod.name}
                       </h4>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '8px' }}>
-                        <span style={{ fontSize: '14.5px', fontWeight: 700, color: 'var(--lc-blue-dark)' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 800, color: '#0d6832' }}>
                           {prod.price.toLocaleString('vi-VN')}đ
                         </span>
-                        <span style={{ fontSize: '11px', color: 'var(--lc-muted)' }}>
+                        <span style={{ fontSize: '11px', color: '#6b7280' }}>
                           / {prod.unit || 'Hộp'}
                         </span>
                       </div>
@@ -401,6 +407,45 @@ export default function ProductDetailClient({
           )}
         </div>
       </main>
+
+      <style jsx global>{`
+        .product-detail-grid {
+          display: grid;
+          grid-template-columns: 460px 1fr;
+          gap: 40px;
+        }
+        .product-image-box {
+          height: 400px;
+        }
+        .product-buy-btn:hover {
+          background-color: #b45309 !important;
+        }
+        .product-cart-btn:hover {
+          background-color: #f0fdf4 !important;
+        }
+        .product-submit-review-btn:hover {
+          background-color: #0b5328 !important;
+        }
+
+        @media (max-width: 900px) {
+          .product-detail-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+            padding: 16px !important;
+          }
+          .product-image-box {
+            height: 300px !important;
+          }
+          .product-actions-wrap {
+            gap: 12px !important;
+          }
+          .product-review-form-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

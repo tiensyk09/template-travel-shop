@@ -1,8 +1,8 @@
 import OrdersPageClient from '@/components/OrdersPageClient';
 
 export const metadata = {
-  title: 'Tra cứu & Lịch sử đơn hàng | FPT Long Châu',
-  description: 'Nhập mã đơn hàng hoặc số điện thoại của bạn để tra cứu thông tin vận chuyển, trạng thái giao hàng.'
+  title: 'Tài khoản & Lịch sử đơn hàng | Sâm Ngọc Linh',
+  description: 'Tra cứu thông tin vận chuyển, xem chi tiết lịch sử giao hàng và cập nhật địa chỉ, số điện thoại giao nhận sâm Ngọc Linh.'
 };
 
 export default function OrdersPage() {

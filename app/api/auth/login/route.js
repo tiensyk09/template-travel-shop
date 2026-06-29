@@ -14,7 +14,7 @@ export async function POST(request) {
     let dbError = null;
     try {
       users = await query(
-        'SELECT id, username, password, display_name, email, role, tier, active FROM users WHERE username = ?',
+        'SELECT id, username, password, display_name, email, phone, address, role, tier, active FROM users WHERE username = ?',
         [username]
       );
     } catch (err) {
@@ -30,6 +30,8 @@ export async function POST(request) {
           username: 'admin',
           displayName: 'Emergency Admin (Offline DB)',
           email: 'emergency@commandcode.ai',
+          phone: '',
+          address: '',
           role: 'admin',
           tier: 'Enterprise',
           emergency: true,
@@ -61,6 +63,8 @@ export async function POST(request) {
           username: 'admin',
           displayName: 'Emergency Admin (Unseeded DB)',
           email: 'emergency@commandcode.ai',
+          phone: '',
+          address: '',
           role: 'admin',
           tier: 'Enterprise',
           emergency: true
@@ -91,6 +95,8 @@ export async function POST(request) {
       username: user.username,
       displayName: user.display_name,
       email: user.email,
+      phone: user.phone,
+      address: user.address,
       role: user.role,
       tier: user.tier,
     };
@@ -117,5 +123,30 @@ export async function DELETE() {
 export async function GET() {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ user: null }, { status: 401 });
+  
+  try {
+    const dbUsers = await query(
+      'SELECT id, username, display_name, email, phone, address, role, tier FROM users WHERE id = ?',
+      [user.id]
+    );
+    if (dbUsers.length > 0) {
+      const u = dbUsers[0];
+      return NextResponse.json({
+        user: {
+          id: u.id,
+          username: u.username,
+          displayName: u.display_name,
+          email: u.email,
+          phone: u.phone,
+          address: u.address,
+          role: u.role,
+          tier: u.tier
+        }
+      });
+    }
+  } catch (err) {
+    // fallback
+  }
+
   return NextResponse.json({ user });
 }

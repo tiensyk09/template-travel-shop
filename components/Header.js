@@ -76,7 +76,7 @@ export default function Header() {
 
           {/* User Actions */}
           <div className="lc-user-actions-container" style={{ display: 'flex', alignItems: 'center', gap: 20, flexShrink: 0 }}>
-            <Link href="/admin/login" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
+            <Link href="/login" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
               <span style={{ fontSize: 22 }}>👤</span>
               <div>
                 <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 500, lineHeight: 1.2 }}>Tài khoản</div>

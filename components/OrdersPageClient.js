@@ -3,36 +3,98 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function OrdersPageClient() {
+  // Session & Profile States
+  const [user, setUser] = useState(null);
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  
+  const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileError, setProfileError] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  // Orders History States
+  const [myOrders, setMyOrders] = useState([]);
+  const [myOrdersLoading, setMyOrdersLoading] = useState(false);
+  const [requireLogin, setRequireLogin] = useState(false);
+
+  // Search/Lookup States
   const [searchCode, setSearchCode] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
 
-  const [myOrders, setMyOrders] = useState([]);
-  const [myOrdersLoading, setMyOrdersLoading] = useState(false);
-  const [requireLogin, setRequireLogin] = useState(false);
-
-  // Load user order history on mount
+  // Load profile and orders on mount
   useEffect(() => {
-    async function loadHistory() {
+    async function loadData() {
       setMyOrdersLoading(true);
+      setProfileLoading(true);
       try {
-        const res = await fetch('/api/orders/my');
-        if (res.ok) {
-          const data = await res.json();
-          setMyOrders(data.orders || []);
-          setRequireLogin(false);
-        } else if (res.status === 401) {
+        // Fetch session
+        const sessionRes = await fetch('/api/auth/login');
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.user) {
+            setUser(sessionData.user);
+            setDisplayName(sessionData.user.displayName || '');
+            setEmail(sessionData.user.email || '');
+            setPhone(sessionData.user.phone || '');
+            setAddress(sessionData.user.address || '');
+            setRequireLogin(false);
+
+            // Fetch orders
+            const ordersRes = await fetch('/api/orders/my');
+            if (ordersRes.ok) {
+              const ordersData = await ordersRes.json();
+              setMyOrders(ordersData.orders || []);
+            }
+          }
+        } else if (sessionRes.status === 401) {
           setRequireLogin(true);
         }
-      } catch {
-        // Silent fail
+      } catch (err) {
+        console.error('Failed to load profile or order data:', err);
       } finally {
         setMyOrdersLoading(false);
+        setProfileLoading(false);
       }
     }
-    loadHistory();
+    loadData();
   }, []);
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setProfileSuccess('');
+    setProfileError('');
+    setProfileSaving(true);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          displayName,
+          email,
+          phone,
+          address
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfileSuccess('Cập nhật thông tin thành công!');
+        if (data.user) {
+          setUser(data.user);
+        }
+      } else {
+        setProfileError(data.error || 'Cập nhật thất bại. Vui lòng kiểm tra lại.');
+      }
+    } catch {
+      setProfileError('Có lỗi xảy ra trong quá trình cập nhật.');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
 
   const handleLookup = async (e) => {
     e.preventDefault();
@@ -58,22 +120,22 @@ export default function OrdersPageClient() {
 
   const getStatusBadge = (status) => {
     const map = {
-      pending: { text: 'Chờ xác nhận', color: '#faad14', bg: '#fffbe6', border: '#ffe58f' },
-      confirmed: { text: 'Đã xác nhận', color: '#1890ff', bg: '#e6f7ff', border: '#91d5ff' },
-      shipping: { text: 'Đang giao hàng', color: '#722ed1', bg: '#f9f0ff', border: '#d3adf7' },
-      completed: { text: 'Đã giao hàng', color: '#52c41a', bg: '#f6ffed', border: '#b7eb8f' },
-      cancelled: { text: 'Đã hủy', color: '#f5222d', bg: '#fff1f0', border: '#ffa39e' }
+      pending: { text: 'Chờ xác nhận', color: '#d97706', bg: '#fef3c7', border: '#fde68a' },
+      confirmed: { text: 'Đã xác nhận', color: '#2563eb', bg: '#dbeafe', border: '#bfdbfe' },
+      shipping: { text: 'Đang giao hàng', color: '#7c3aed', bg: '#f3e8ff', border: '#e9d5ff' },
+      completed: { text: 'Đã giao hàng', color: '#16a34a', bg: '#dcfce7', border: '#bbf7d0' },
+      cancelled: { text: 'Đã hủy', color: '#dc2626', bg: '#fee2e2', border: '#fecaca' }
     };
-    const s = map[status] || { text: status, color: '#555', bg: '#f5f5f5', border: '#d9d9d9' };
+    const s = map[status] || { text: status, color: '#4b5563', bg: '#f3f4f6', border: '#e5e7eb' };
     return (
       <span style={{
         color: s.color,
         background: s.bg,
         border: `1px solid ${s.border}`,
         padding: '3px 8px',
-        borderRadius: '4px',
-        fontSize: '12px',
-        fontWeight: 600
+        borderRadius: '6px',
+        fontSize: '11.5px',
+        fontWeight: 700
       }}>
         {s.text}
       </span>
@@ -82,20 +144,20 @@ export default function OrdersPageClient() {
 
   const getPaymentStatusBadge = (status) => {
     const map = {
-      pending: { text: 'Chưa thanh toán', color: '#fa8c16', bg: '#fff7e6', border: '#ffd591' },
-      paid: { text: 'Đã thanh toán', color: '#52c41a', bg: '#f6ffed', border: '#b7eb8f' },
-      refunded: { text: 'Đã hoàn tiền', color: '#eb2f96', bg: '#fff0f6', border: '#ffadd2' }
+      pending: { text: 'Chưa thanh toán', color: '#ea580c', bg: '#ffedd5', border: '#fed7aa' },
+      paid: { text: 'Đã thanh toán', color: '#16a34a', bg: '#dcfce7', border: '#bbf7d0' },
+      refunded: { text: 'Đã hoàn tiền', color: '#db2777', bg: '#fce7f3', border: '#fbcfe8' }
     };
-    const s = map[status] || { text: status, color: '#555', bg: '#f5f5f5', border: '#d9d9d9' };
+    const s = map[status] || { text: status, color: '#4b5563', bg: '#f3f4f6', border: '#e5e7eb' };
     return (
       <span style={{
         color: s.color,
         background: s.bg,
         border: `1px solid ${s.border}`,
-        padding: '3px 8px',
+        padding: '2px 6px',
         borderRadius: '4px',
-        fontSize: '11px',
-        fontWeight: 600,
+        fontSize: '10.5px',
+        fontWeight: 700,
         marginLeft: '6px'
       }}>
         {s.text}
@@ -104,101 +166,105 @@ export default function OrdersPageClient() {
   };
 
   return (
-    <div className="lc-page-wrapper">
+    <div style={{ backgroundColor: '#f5faf6', minHeight: '100vh', padding: '24px 0 60px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        
+        {/* Breadcrumbs */}
+        <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '24px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <Link href="/" style={{ color: '#374151', textDecoration: 'none' }}>Trang chủ</Link>
+          <span>/</span>
+          <span style={{ color: '#0d6832', fontWeight: 600 }}>Tài khoản của tôi</span>
+        </div>
 
-      <main style={{ background: '#f4f6f9', padding: '24px 0 60px' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 20px' }}>
-          {/* Breadcrumbs */}
-          <div style={{ fontSize: '13px', color: 'var(--lc-muted)', marginBottom: '16px', display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <Link href="/" style={{ color: 'var(--lc-text)', textDecoration: 'none' }}>Trang chủ</Link>
-            <span>/</span>
-            <span style={{ color: 'var(--lc-blue)', fontWeight: 600 }}>Đơn hàng của tôi</span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '24px', alignItems: 'start' }}>
-            {/* Left: Quick Lookup Form */}
-            <div style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid var(--lc-border)' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--lc-blue-dark)', margin: '0 0 12px 0' }}>
-                Tra Cứu Đơn Hàng Nhanh
+        {requireLogin ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '28px' }} className="orders-unauth-layout">
+            
+            {/* Quick Lookup Form (Does not require login) */}
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '32px', border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1a2e1e', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>🔍</span> Tra Cứu Đơn Hàng Nhanh
               </h3>
-              <p style={{ color: 'var(--lc-muted)', fontSize: '13px', margin: '0 0 16px 0', lineHeight: '1.4' }}>
-                Nhập mã đơn hàng (ví dụ: LC-xxxxxxxxxx) để kiểm tra tình trạng xử lý và vận chuyển.
+              <p style={{ color: '#6b7280', fontSize: '13.5px', margin: '0 0 20px 0', lineHeight: '1.5' }}>
+                Nhập mã đơn hàng (ví dụ: GD-xxxxxxxxxx) để kiểm tra trạng thái xử lý và vận chuyển trực tiếp.
               </p>
 
-              <form onSubmit={handleLookup} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <form onSubmit={handleLookup} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <input
                   type="text"
                   required
-                  placeholder="Mã đơn hàng (LC-...)"
+                  placeholder="Nhập mã đơn hàng (GD-...)"
                   value={searchCode}
                   onChange={(e) => setSearchCode(e.target.value)}
                   style={{
-                    padding: '10px 14px',
+                    padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #ccc',
+                    border: '1.5px solid #cbd5e1',
                     fontSize: '14px',
                     outline: 'none',
-                    width: '100%'
+                    width: '100%',
+                    boxSizing: 'border-box'
                   }}
                 />
                 <button
                   type="submit"
                   disabled={searchLoading}
                   style={{
-                    padding: '10px',
-                    borderRadius: '20px',
+                    padding: '12px',
+                    borderRadius: '24px',
                     border: 'none',
-                    background: 'var(--lc-orange)',
+                    background: '#0d6832',
                     color: '#fff',
                     fontWeight: 700,
                     fontSize: '14px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
                   }}
+                  className="orders-btn-hover"
                 >
-                  {searchLoading ? 'Đang tra cứu...' : 'Tra cứu ngay'}
+                  {searchLoading ? 'Đang kiểm tra...' : 'Tra cứu ngay ➔'}
                 </button>
               </form>
 
               {searchError && (
-                <div style={{ background: '#fff1f0', border: '1px solid #ffa39e', color: '#f5222d', padding: '10px', borderRadius: '6px', marginTop: '12px', fontSize: '13px' }}>
+                <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '12px', borderRadius: '8px', marginTop: '16px', fontSize: '13px' }}>
                   {searchError}
                 </div>
               )}
 
               {/* Single Search Result */}
               {searchResult && (
-                <div style={{ borderTop: '1px solid #eee', marginTop: '20px', paddingTop: '20px' }}>
-                  <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--lc-blue-dark)', margin: '0 0 12px 0' }}>
-                    Kết quả tra cứu đơn {searchResult.order_code}
+                <div style={{ borderTop: '1px solid #f3f4f6', marginTop: '24px', paddingTop: '24px' }}>
+                  <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#1a2e1e', margin: '0 0 16px 0' }}>
+                    Kết quả tra cứu đơn: {searchResult.order_code}
                   </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13.5px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Trạng thái:</span>
+                      <span style={{ color: '#6b7280' }}>Trạng thái giao hàng:</span>
                       {getStatusBadge(searchResult.status)}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Thanh toán:</span>
+                      <span style={{ color: '#6b7280' }}>Hình thức thanh toán:</span>
                       <div>
                         <span style={{ textTransform: 'uppercase', fontSize: '11px', fontWeight: 'bold' }}>{searchResult.payment_method}</span>
                         {getPaymentStatusBadge(searchResult.payment_status)}
                       </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Tổng tiền:</span>
-                      <strong style={{ color: 'var(--lc-orange)' }}>{searchResult.total.toLocaleString('vi-VN')}đ</strong>
+                      <span style={{ color: '#6b7280' }}>Tổng số tiền thanh toán:</span>
+                      <strong style={{ color: '#0d6832', fontSize: '15px' }}>{searchResult.total.toLocaleString('vi-VN')}đ</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Ngày đặt:</span>
+                      <span style={{ color: '#6b7280' }}>Thời gian khởi tạo:</span>
                       <span>{new Date(searchResult.created_at).toLocaleString('vi-VN')}</span>
                     </div>
 
-                    <div style={{ marginTop: '12px', borderTop: '1px dashed #eee', paddingTop: '12px' }}>
-                      <span style={{ fontWeight: 600, display: 'block', marginBottom: '8px' }}>Sản phẩm đã chọn:</span>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ marginTop: '16px', borderTop: '1px dashed #f3f4f6', paddingTop: '16px' }}>
+                      <span style={{ fontWeight: 700, display: 'block', marginBottom: '10px', color: '#1a2e1e' }}>Sản phẩm đã mua:</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {searchResult.items.map((it, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', color: 'var(--lc-text)' }}>
-                            <span>{it.product_name} ({it.variant_name}) x{it.quantity}</span>
-                            <span>{it.line_total?.toLocaleString('vi-VN') || (it.unit_price * it.quantity).toLocaleString('vi-VN')}đ</span>
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#374151' }}>
+                            <span>{it.product_name} x{it.quantity}</span>
+                            <strong>{(it.unit_price * it.quantity).toLocaleString('vi-VN')}đ</strong>
                           </div>
                         ))}
                       </div>
@@ -208,63 +274,233 @@ export default function OrdersPageClient() {
               )}
             </div>
 
-            {/* Right: Personal Order History (Requires login) */}
-            <div style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid var(--lc-border)' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--lc-blue-dark)', margin: '0 0 16px 0' }}>
-                Lịch Sử Đơn Hàng Của Bạn
+            {/* Login Prompt card */}
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '40px 32px', border: '1px solid #e5e7eb', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <div style={{ fontSize: '56px', marginBottom: '16px' }}>🔐</div>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1a2e1e', marginBottom: '8px' }}>Xem Lịch Sử Mua Hàng</h3>
+              <p style={{ color: '#6b7280', fontSize: '14px', margin: '0 0 24px 0', lineHeight: '1.5' }}>
+                Đăng nhập tài khoản khách hàng để quản lý đơn hàng đã mua, chỉnh sửa thông tin giao hàng & cập nhật số điện thoại cá nhân.
+              </p>
+              <Link
+                href="/login?redirect=/orders"
+                style={{
+                  display: 'inline-block',
+                  background: '#0d6832',
+                  color: '#fff',
+                  padding: '12px 32px',
+                  borderRadius: '24px',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  fontSize: '14.5px',
+                  transition: 'background 0.2s'
+                }}
+                className="orders-btn-hover"
+              >
+                Đăng nhập ngay
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* Logged In Layout: Profile Update (Left) & Personal History (Right) */
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '28px' }} className="orders-auth-layout">
+            
+            {/* Left Panel: Profile Management */}
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '28px', border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', alignSelf: 'start' }}>
+              <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#1a2e1e', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>👤</span> Thông Tin Tài Khoản
+              </h3>
+              <p style={{ color: '#6b7280', fontSize: '13px', margin: '0 0 20px 0' }}>
+                Cập nhật thông tin liên hệ và địa chỉ nhận hàng.
+              </p>
+
+              {profileSuccess && (
+                <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', color: '#15803d', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', fontWeight: 600 }}>
+                  🎉 {profileSuccess}
+                </div>
+              )}
+              {profileError && (
+                <div style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#b91c1c', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' }}>
+                  ⚠️ {profileError}
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Username (Disabled) */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Tên đăng nhập</label>
+                  <input
+                    type="text"
+                    value={user?.username || ''}
+                    disabled
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #cbd5e1',
+                      background: '#f1f5f9',
+                      color: '#64748b',
+                      fontSize: '13.5px',
+                      cursor: 'not-allowed',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Display Name */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Họ và tên</label>
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    required
+                    placeholder="Nhập họ và tên..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13.5px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Địa chỉ Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13.5px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Số điện thoại nhận hàng</label>
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Nhập số điện thoại liên lạc..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13.5px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#4b5563', marginBottom: '6px', textTransform: 'uppercase' }}>Địa chỉ giao hàng mặc định</label>
+                  <textarea
+                    rows={3}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Ghi rõ số nhà, tên đường, phường/xã, quận/huyện, tỉnh thành..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '13.5px',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      boxSizing: 'border-box',
+                      resize: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Submit Profile */}
+                <button
+                  type="submit"
+                  disabled={profileSaving}
+                  style={{
+                    padding: '11px',
+                    borderRadius: '24px',
+                    border: 'none',
+                    background: '#0d6832',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '13.5px',
+                    cursor: profileSaving ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.2s',
+                    marginTop: '8px'
+                  }}
+                  className="orders-btn-hover"
+                >
+                  {profileSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
+              </form>
+            </div>
+
+            {/* Right Panel: Order History */}
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '28px', border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#1a2e1e', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📦</span> Lịch Sử Đơn Hàng Đã Đặt
               </h3>
 
-              {requireLogin ? (
-                <div style={{ textAlign: 'center', padding: '40px 10px' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔒</div>
-                  <p style={{ color: 'var(--lc-muted)', fontSize: '13.5px', marginBottom: '16px' }}>
-                    Vui lòng đăng nhập để xem lịch sử mua hàng cá nhân.
-                  </p>
-                  <Link
-                    href="/login?redirect=/orders"
-                    style={{ display: 'inline-block', background: 'var(--lc-blue)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '20px', fontWeight: 700, textDecoration: 'none', fontSize: '13.5px' }}
-                  >
-                    Đăng nhập tài khoản
-                  </Link>
-                </div>
-              ) : myOrdersLoading ? (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--lc-muted)', fontSize: '14px' }}>
-                  Đang tải danh sách đơn hàng...
+              {myOrdersLoading ? (
+                <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280', fontSize: '14px' }}>
+                  Đang tải đơn hàng...
                 </div>
               ) : myOrders.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--lc-muted)' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>📦</div>
-                  <p style={{ fontSize: '13.5px' }}>Bạn chưa có đơn hàng nào.</p>
-                  <Link href="/products" style={{ color: 'var(--lc-blue)', fontWeight: 600, fontSize: '13.5px', textDecoration: 'none' }}>
-                    Đi xem sản phẩm ngay ➔
+                <div style={{ textAlign: 'center', padding: '50px 0', color: '#6b7280' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>🛒</div>
+                  <p style={{ fontSize: '14px', margin: '0 0 16px 0' }}>Bạn chưa đặt bất kỳ đơn hàng nào.</p>
+                  <Link href="/products" style={{ color: '#0d6832', fontWeight: 700, fontSize: '14px', textDecoration: 'none' }}>
+                    Khám phá sản phẩm ngay ➔
                   </Link>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {myOrders.map((ord) => (
-                    <div key={ord.id} style={{ border: '1px solid #eee', borderRadius: '8px', padding: '16px', background: '#fafafa' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-                        <span style={{ fontWeight: 700, color: 'var(--lc-blue-dark)', fontSize: '14.5px' }}>
-                          {ord.order_code}
+                    <div key={ord.id} style={{ border: '1px solid #e5e7eb', borderRadius: '12px', padding: '18px', background: '#fafdfb' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1.5px solid #f3f4f6', paddingBottom: '10px' }}>
+                        <span style={{ fontWeight: 800, color: '#1a2e1e', fontSize: '14.5px' }}>
+                          Mã đơn: {ord.order_code}
                         </span>
-                        <span>
+                        <span style={{ color: '#6b7280', fontSize: '12px' }}>
                           {new Date(ord.created_at).toLocaleDateString('vi-VN')}
                         </span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px', marginBottom: '12px' }}>
+                      
+                      {/* Items */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', marginBottom: '14px' }}>
                         {ord.items.map((it, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--lc-text)' }}>
-                            <span>{it.product_name} ({it.variant_name}) x{it.quantity}</span>
-                            <span>{it.line_total?.toLocaleString('vi-VN') || (it.unit_price * it.quantity).toLocaleString('vi-VN')}đ</span>
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', color: '#374151' }}>
+                            <span>{it.product_name} x{it.quantity}</span>
+                            <strong>{(it.unit_price * it.quantity).toLocaleString('vi-VN')}đ</strong>
                           </div>
                         ))}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #eee', paddingTop: '10px' }}>
-                        <div>
-                          <span>Trạng thái: </span>
+
+                      {/* Summary info */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #e5e7eb', paddingTop: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
                           {getStatusBadge(ord.status)}
+                          {getPaymentStatusBadge(ord.payment_status)}
                         </div>
-                        <div style={{ fontWeight: 700, color: 'var(--lc-orange)', fontSize: '15px' }}>
+                        <div style={{ fontWeight: 800, color: '#0d6832', fontSize: '16px' }}>
                           {ord.total.toLocaleString('vi-VN')}đ
                         </div>
                       </div>
@@ -273,10 +509,24 @@ export default function OrdersPageClient() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </main>
 
+          </div>
+        )}
+
+      </div>
+
+      <style jsx global>{`
+        .orders-btn-hover:hover:not(:disabled) {
+          background-color: #0b5328 !important;
+        }
+        @media (max-width: 900px) {
+          .orders-unauth-layout,
+          .orders-auth-layout {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

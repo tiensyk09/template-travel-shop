@@ -89,10 +89,10 @@ export default function AdminShell({ children, title = 'Dashboard' }) {
       {/* Sidebar navigation */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'mobile-open' : ''}`}>
         <Link href="/admin" className="sidebar-brand" onClick={() => setSidebarOpen(false)}>
-          <span className="logo-icon">⚡</span>
+          <span className="logo-icon">🌿</span>
           <div className="sidebar-brand-text">
-            <div className="sidebar-brand-title">Command Code</div>
-            <div className="sidebar-brand-sub">Control Center</div>
+            <div className="sidebar-brand-title">Ngọc Linh Xanh</div>
+            <div className="sidebar-brand-sub">Admin Dashboard</div>
           </div>
         </Link>
 

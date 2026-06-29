@@ -9,7 +9,7 @@ export async function PUT(request) {
   }
 
   try {
-    const { displayName, email, currentPassword, newPassword } = await request.json();
+    const { displayName, email, phone, address, currentPassword, newPassword } = await request.json();
 
     const users = await query('SELECT * FROM users WHERE id = ?', [user.id]);
     if (users.length === 0) {
@@ -27,6 +27,14 @@ export async function PUT(request) {
     if (email !== undefined) {
       fields.push('email = ?');
       vals.push(email);
+    }
+    if (phone !== undefined) {
+      fields.push('phone = ?');
+      vals.push(phone);
+    }
+    if (address !== undefined) {
+      fields.push('address = ?');
+      vals.push(address);
     }
 
     if (newPassword) {
@@ -58,7 +66,7 @@ export async function PUT(request) {
     await query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, vals);
 
     // Fetch updated user
-    const updatedUsers = await query('SELECT id, username, display_name, email, role, tier FROM users WHERE id = ?', [user.id]);
+    const updatedUsers = await query('SELECT id, username, display_name, email, phone, address, role, tier FROM users WHERE id = ?', [user.id]);
     const updatedUser = updatedUsers[0];
 
     return NextResponse.json({
@@ -68,6 +76,8 @@ export async function PUT(request) {
         username: updatedUser.username,
         displayName: updatedUser.display_name,
         email: updatedUser.email,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
         role: updatedUser.role,
         tier: updatedUser.tier
       }
