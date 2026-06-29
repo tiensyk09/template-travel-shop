@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getAuthUser, requireAuth } from '@/lib/auth';
 
 // GET /api/admin/dashboard - E-Commerce stats
 export async function GET() {
   try {
+    const user = await getAuthUser();
+    const authErr = requireAuth(user, 'mod');
+    if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
     const [
       totalOrders,
       pendingOrders,

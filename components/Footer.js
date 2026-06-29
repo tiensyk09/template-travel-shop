@@ -10,12 +10,12 @@ export default function Footer() {
         <div>
           <Link href="/" className="flex items-center gap-2 mb-4">
             <div className="w-9 h-9 bg-teal-700 text-amber-400 rounded-lg flex items-center justify-center text-xl shadow-sm">
-              🧳
+              🌿
             </div>
-            <span className="text-xl font-black text-teal-950 uppercase tracking-tight">TRAVEL <span className="text-amber-600">SHOP</span></span>
+            <span className="text-xl font-black text-teal-950 uppercase tracking-tight">SÂM <span className="text-amber-600">NGỌC LINH</span></span>
           </Link>
           <p className="text-xs text-gray-500 leading-relaxed mb-6 font-medium">
-            Chuyên cung cấp đặc sản, quà tặng và sản phẩm du lịch chất lượng nhất từ khắp mọi miền Việt Nam.
+            Ngọc Linh XANH với sứ mệnh đưa đặc sản rừng, dược liệu thiên nhiên, nét đẹp bản sắc dân tộc vùng núi Ngọc Linh - Kon Tum đến với bạn bè, khách hàng cả nước.
           </p>
           <div className="flex space-x-3 text-lg text-teal-800">
             <span className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center cursor-pointer hover:bg-teal-700 hover:text-white transition-colors">📘</span>
@@ -53,18 +53,21 @@ export default function Footer() {
         <div>
           <h3 className="text-xs font-bold text-teal-950 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">THÔNG TIN LIÊN HỆ</h3>
           <ul className="space-y-3 text-xs font-medium text-gray-500">
-            <li className="flex items-start gap-2">📍 <span>123 Đường Du Lịch, Quận 1, TP. Hồ Chí Minh</span></li>
-            <li className="flex items-center gap-2">📞 <span className="font-bold text-teal-900">1900 1234</span></li>
-            <li className="flex items-center gap-2">✉️ <span>info@travelshop.vn</span></li>
-            <li className="flex items-center gap-2">🌐 <span>www.travelshop.vn</span></li>
+            <li className="flex items-start gap-2">📍 <span>Xã Ngọc Linh, huyện Đăk Glei, tỉnh Kon Tum</span></li>
+            <li className="flex items-center gap-2">📞 <span className="font-bold text-teal-900">0769.442.777</span></li>
+            <li className="flex items-center gap-2">✉️ <span>ngoclinhxanhcom@gmail.com</span></li>
+            <li className="flex items-center gap-2">🌐 <span>www.ngoclinhxanh.com</span></li>
           </ul>
+          <div className="mt-4 text-3xs text-gray-400 font-medium leading-relaxed">
+            GCNĐKKD số: 38B8000132, cấp bởi Phòng TCKH H.Đăk Glei – T.Kon Tum.
+          </div>
         </div>
       </div>
 
       {/* Bottom Copyright & Payments */}
       <div className="container mx-auto px-4 pt-6 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between text-xs text-gray-400 font-medium gap-4">
-        <div>© 2026 <strong>Travel Shop</strong>. All rights reserved. Powered by AutoWeb CMS.</div>
-        <div className="flex items-center space-x-3 text-[10px] font-bold text-gray-500">
+        <div>© 2026 <strong>Ngọc Linh Xanh</strong>. All rights reserved. Powered by AutoWeb CMS.</div>
+        <div className="flex items-center space-x-3 text-3xs font-bold text-gray-500">
           <span className="bg-gray-100 px-2.5 py-1 rounded border border-gray-200">VISA</span>
           <span className="bg-gray-100 px-2.5 py-1 rounded border border-gray-200">MasterCard</span>
           <span className="bg-pink-100 text-pink-700 px-2.5 py-1 rounded border border-pink-200">MoMo</span>

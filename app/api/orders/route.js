@@ -182,9 +182,19 @@ export async function POST(request) {
   }
 }
 
-// GET /api/orders  — Admin list all orders
+// GET /api/orders  — Admin list all orders / Member list their own orders
 export async function GET(request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('admin_token')?.value || cookieStore.get('auth_token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const user = await verifyToken(token);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const page = parseInt(searchParams.get('page') || '1');
@@ -194,6 +204,12 @@ export async function GET(request) {
 
     let conditions = [];
     let params = [];
+
+    // Enforce multi-tenancy: normal members can only see their own orders
+    if (user.role !== 'admin' && user.role !== 'mod') {
+      conditions.push('user_id = ?');
+      params.push(user.id);
+    }
 
     if (status && status !== 'all') {
       conditions.push('status = ?');

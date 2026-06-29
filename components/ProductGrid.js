@@ -1,85 +1,112 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function ProductGrid() {
-  const products = [
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fallbackProducts = [
     {
       id: 1,
-      title: 'Cà phê Việt Nam - Hương vị truyền thống',
-      image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=500&q=80',
-      badge: '-10%',
+      name: 'Sâm Dây Ngọc Linh Khô – Chính hiệu – Chất lượng',
+      image: 'https://ngoclinhxanh.com/wp-content/uploads/2017/12/sam-day-ngoc-linh-kho-hong-dang-sam-kho-sam-day-kho-rung-samday-samdayngoclinh-ngoc-linh-xanh-ngoclinhxanh.jpg-8.jpg',
+      badge: '-22%',
       badgeType: 'discount',
       rating: 5,
       reviews: 128,
-      price: '135.000đ',
-      oldPrice: '150.000đ',
-      slug: 'ca-phe-viet-nam'
+      price: 700000,
+      original_price: 900000,
+      slug: 'sam-day-ngoc-linh-kho'
     },
     {
       id: 2,
-      title: 'Trà Sen Tây Hồ - Thơm ngon tinh khiết',
-      image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80',
+      name: 'Sâm Dây Ngọc Linh Tươi – Đảng Sâm Chính Hiệu',
+      image: 'https://ngoclinhxanh.com/wp-content/uploads/2017/12/sam-day-ngoc-linh-kho-hong-dang-sam-kho-ngoc-linh-xanh-com-ngoclinhxanh-2.jpg',
       badge: 'BEST SELLER',
       badgeType: 'bestseller',
       rating: 5,
       reviews: 96,
-      price: '120.000đ',
-      oldPrice: '',
-      slug: 'tra-sen-tay-ho'
+      price: 390000,
+      original_price: 490000,
+      slug: 'sam-day-ngoc-linh-tuoi'
     },
     {
       id: 3,
-      title: 'Hạt điều rang muối Bình Phước',
-      image: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?auto=format&fit=crop&w=500&q=80',
-      badge: '-15%',
-      badgeType: 'discount',
+      name: 'Mật Ong Rừng Nguyên Chất Ngọc Linh',
+      image: 'https://ngoclinhxanh.com/wp-content/uploads/2021/02/mat-ong-rung-nguyen-chat-ngoc-linh-xanh-matongrung-ngoclinhxanh-com-mat-ong-khoai-treo-lo-du-dang-sam-dat.jpg',
+      badge: 'NEW',
+      badgeType: 'new',
       rating: 5,
       reviews: 78,
-      price: '85.000đ',
-      oldPrice: '100.000đ',
-      slug: 'hat-dieu-binh-phuoc'
+      price: 590000,
+      original_price: 690000,
+      slug: 'mat-ong-rung-ngoc-linh'
     },
     {
       id: 4,
-      title: 'Nước mắm Phú Quốc - Chính hiệu truyền thống',
-      image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=500&q=80',
-      badge: '',
-      badgeType: '',
+      name: 'Nấm Lim Xanh Rừng Ngọc Linh - Kon Tum',
+      image: 'https://ngoclinhxanh.com/wp-content/uploads/2017/12/nam-lim-xanh-rung-ngoc-linh-xanh-chinh-hieu-tu-nhien-kon-tum-namlimxanh-ngoclinhxanh-6.jpg',
+      badge: '-20%',
+      badgeType: 'discount',
       rating: 5,
       reviews: 64,
-      price: '180.000đ',
-      oldPrice: '',
-      slug: 'nuoc-mam-phu-quoc'
+      price: 1200000,
+      original_price: 1500000,
+      slug: 'nam-lim-xanh-rung'
     },
     {
       id: 5,
-      title: 'Bánh đậu xanh Hải Dương giòn thơm',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=500&q=80',
-      badge: '-10%',
-      badgeType: 'discount',
-      rating: 4,
+      name: 'Nấm Linh Chi Cổ Cò Rừng – Chính Hiệu – Hảo Hạng',
+      image: 'https://ngoclinhxanh.com/wp-content/uploads/2018/11/nam-linh-chi-co-co-rung-nam-muong-mua-ban-tac-dung-n%E1%BA%A5m-linh-chi-c%E1%BB%95-c%C3%B2-chat-luong-chinh-hieu-ng%E1%BB%8Dc-linh-xanh-nam-muong-ngoclinhxanh-4.jpg',
+      badge: '',
+      badgeType: '',
+      rating: 5,
       reviews: 52,
-      price: '72.000đ',
-      oldPrice: '80.000đ',
-      slug: 'banh-dau-xanh-hai-duong'
+      price: 1400000,
+      original_price: 1800000,
+      slug: 'nam-linh-chi-co-co'
     },
     {
       id: 6,
-      title: 'Túi cói thủ công - Phong cách du lịch',
-      image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=500&q=80',
+      name: 'Khổ Qua Rừng Khô (Mướp Đắng Rừng)',
+      image: 'https://ngoclinhxanh.com/wp-content/uploads/2017/12/kho-qua-rung-kho-muop-dang-rung-ngoc-linh-xanh-com-ngoclinhxanh-5.jpg',
       badge: '',
       badgeType: '',
       rating: 5,
       reviews: 38,
-      price: '150.000đ',
-      oldPrice: '',
-      slug: 'tui-coi-thu-cong'
+      price: 450000,
+      original_price: 550000,
+      slug: 'kho-qua-rung-kho'
     }
   ];
 
+  useEffect(() => {
+    fetch('/api/products?limit=12')
+      .then(res => res.json())
+      .then(data => {
+        if (data.products && data.products.length > 0) {
+          setProducts(data.products.map(p => ({
+            id: p.id,
+            name: p.name,
+            image: p.thumbnail,
+            price: p.price,
+            original_price: p.original_price,
+            slug: p.slug,
+            is_featured: p.is_featured,
+            is_flash_sale: p.is_flash_sale,
+            flash_sale_price: p.flash_sale_price
+          })));
+        } else {
+          setProducts(fallbackProducts);
+        }
+      })
+      .catch(() => setProducts(fallbackProducts))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <section className="py-12 bg-white">
+    <section id="featured-products" className="py-12 bg-white scroll-mt-20">
       <div className="container mx-auto px-4">
         {/* Section Heading */}
         <div className="text-center mb-10">
@@ -91,60 +118,67 @@ export default function ProductGrid() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
-          {products.map((prod) => (
-            <div 
-              key={prod.id}
-              className="bg-white rounded-2xl border border-gray-100 p-3 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group"
-            >
-              {/* Badge */}
-              {prod.badge && (
-                <div className={`absolute top-5 left-5 z-10 px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider ${
-                  prod.badgeType === 'bestseller' ? 'bg-amber-500 text-white' : 'bg-orange-600 text-white'
-                }`}>
-                  {prod.badge}
-                </div>
-              )}
+          {products.map((prod) => {
+            const hasDiscount = prod.original_price && prod.original_price > prod.price;
+            const discountPercent = hasDiscount ? Math.round((1 - (prod.price / prod.original_price)) * 100) : 0;
+            
+            return (
+              <div 
+                key={prod.id}
+                className="bg-white rounded-2xl border border-gray-100 p-3 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group"
+              >
+                {/* Discount Badge */}
+                {hasDiscount && (
+                  <div className="absolute top-5 left-5 z-10 px-2 py-0.5 text-3xs font-bold rounded-md bg-orange-600 text-white uppercase tracking-wider">
+                    -{discountPercent}%
+                  </div>
+                )}
 
-              {/* Product Image */}
-              <Link href={`/products/${prod.slug}`} className="block relative overflow-hidden rounded-xl bg-gray-50 mb-3 aspect-square">
-                <img 
-                  src={prod.image} 
-                  alt={prod.title}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
-                />
-              </Link>
-
-              {/* Content */}
-              <div>
-                <Link href={`/products/${prod.slug}`}>
-                  <h3 className="text-xs font-bold text-gray-800 line-clamp-2 leading-snug hover:text-teal-700 transition-colors mb-1.5 h-8">
-                    {prod.title}
-                  </h3>
+                {/* Product Image */}
+                <Link href={`/products/${prod.slug}`} className="block relative overflow-hidden rounded-xl bg-gray-50 mb-3 aspect-square">
+                  <img 
+                    src={prod.image || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=500&q=80'} 
+                    alt={prod.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      const fallback = fallbackProducts.find(fp => fp.slug === prod.slug);
+                      e.target.src = fallback ? fallback.image : 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=500&q=80';
+                    }}
+                  />
                 </Link>
 
-                {/* Star Rating */}
-                <div className="flex items-center space-x-1 mb-2">
-                  <div className="flex text-amber-400 text-xs">
-                    {'★'.repeat(prod.rating)}{'☆'.repeat(5 - prod.rating)}
-                  </div>
-                  <span className="text-[10px] text-gray-400 font-medium">({prod.reviews})</span>
-                </div>
+                {/* Content */}
+                <div>
+                  <Link href={`/products/${prod.slug}`}>
+                    <h3 className="text-xs font-bold text-gray-800 line-clamp-2 leading-snug hover:text-teal-700 transition-colors mb-1.5 h-8">
+                      {prod.name}
+                    </h3>
+                  </Link>
 
-                {/* Price & Cart Button */}
-                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                  <div>
-                    <div className="text-xs font-extrabold text-teal-900">{prod.price}</div>
-                    {prod.oldPrice && (
-                      <div className="text-[10px] text-gray-400 line-through font-medium">{prod.oldPrice}</div>
-                    )}
+                  {/* Star Rating */}
+                  <div className="flex items-center space-x-1 mb-2">
+                    <div className="flex text-amber-400 text-xs">
+                      ★ ★ ★ ★ ★
+                    </div>
+                    <span className="text-3xs text-gray-400 font-medium">(100+)</span>
                   </div>
-                  <button className="w-8 h-8 rounded-lg bg-teal-700 hover:bg-teal-800 text-white flex items-center justify-center shadow-sm hover:scale-105 transition-all">
-                    🛒
-                  </button>
+
+                  {/* Price & Cart Button */}
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
+                    <div>
+                      <div className="text-xs font-extrabold text-teal-900">{prod.price.toLocaleString('vi-VN')}đ</div>
+                      {hasDiscount && (
+                        <div className="text-3xs text-gray-400 line-through font-medium">{prod.original_price.toLocaleString('vi-VN')}đ</div>
+                      )}
+                    </div>
+                    <button className="w-8 h-8 rounded-lg bg-teal-700 hover:bg-teal-800 text-white flex items-center justify-center shadow-sm hover:scale-105 transition-all">
+                      🛒
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

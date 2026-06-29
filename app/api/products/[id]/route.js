@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getAuthUser, requireAuth } from '@/lib/auth';
 
 // GET /api/products/[id]  (by id or slug)
 export async function GET(request, { params }) {
@@ -52,6 +53,10 @@ export async function GET(request, { params }) {
 
 // PUT /api/products/[id]  (admin)
 export async function PUT(request, { params }) {
+  const user = await getAuthUser();
+  const authErr = requireAuth(user, 'mod');
+  if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -94,6 +99,10 @@ export async function PUT(request, { params }) {
 
 // DELETE /api/products/[id]  (admin)
 export async function DELETE(request, { params }) {
+  const user = await getAuthUser();
+  const authErr = requireAuth(user, 'mod');
+  if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
+
   try {
     const { id } = await params;
     await query('DELETE FROM product_variants WHERE product_id = ?', [id]);

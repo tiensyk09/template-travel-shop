@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getAuthUser, requireAuth } from '@/lib/auth';
 
 // GET /api/products?category=&search=&sort=&featured=&flash_sale=&page=&limit=
 export async function GET(request) {
@@ -78,6 +79,10 @@ export async function GET(request) {
 
 // POST /api/products  (admin)
 export async function POST(request) {
+  const user = await getAuthUser();
+  const authErr = requireAuth(user, 'mod');
+  if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
+
   try {
     const body = await request.json();
     const {
