@@ -135,6 +135,16 @@ CREATE TABLE IF NOT EXISTS download_tokens (
   expires_at INTEGER NOT NULL
 );
 
+-- Installed Plugins Table
+CREATE TABLE IF NOT EXISTS installed_plugins (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  version TEXT DEFAULT '1.0.0',
+  config TEXT DEFAULT '{}',
+  active INTEGER NOT NULL DEFAULT 1,
+  installed_at TEXT DEFAULT (datetime('now'))
+);
+
 -- E-COMMERCE TABLES
 
 CREATE TABLE IF NOT EXISTS shop_categories (
