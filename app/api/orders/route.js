@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { verifyToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { getAuthUser } from '@/lib/auth';
 
 function generateOrderCode() {
   const now = new Date();
@@ -13,16 +12,9 @@ function generateOrderCode() {
 // POST /api/orders  — Place an order (requires login)
 export async function POST(request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
-    
-    if (!token) {
-      return NextResponse.json({ error: 'Bạn cần đăng nhập để đặt hàng', requireLogin: true }, { status: 401 });
-    }
-
-    const user = await verifyToken(token);
+    const user = await getAuthUser();
     if (!user) {
-      return NextResponse.json({ error: 'Phiên đăng nhập hết hạn', requireLogin: true }, { status: 401 });
+      return NextResponse.json({ error: 'Bạn cần đăng nhập để đặt hàng', requireLogin: true }, { status: 401 });
     }
 
     const body = await request.json();
@@ -43,26 +35,36 @@ export async function POST(request) {
     for (const item of items) {
       const { product_id, variant_id, quantity = 1 } = item;
       
-      const products = await query('SELECT * FROM products WHERE id = ? AND status = ?', [product_id, 'active']);
+      const products = await query('SELECT * FROM products WHERE id = ?', [product_id]);
       if (!products.length) {
-        return NextResponse.json({ error: `Sản phẩm ID ${product_id} không còn bán` }, { status: 400 });
+        return NextResponse.json({ error: `Sản phẩm (ID: ${product_id}) không tồn tại trong hệ thống. Vui lòng quay lại giỏ hàng và xóa sản phẩm này.` }, { status: 400 });
       }
       const product = products[0];
+      if (product.status !== 'active') {
+        return NextResponse.json({ error: `Sản phẩm "${product.name}" đã ngừng bán. Vui lòng quay lại giỏ hàng và xóa sản phẩm này.` }, { status: 400 });
+      }
 
       let unitPrice = product.price;
       let variantName = product.unit;
+      let availableStock = product.stock;
 
       if (variant_id) {
         const variants = await query('SELECT * FROM product_variants WHERE id = ? AND product_id = ?', [variant_id, product_id]);
-        if (variants.length) {
-          unitPrice = variants[0].price;
-          variantName = variants[0].name;
+        if (!variants.length) {
+          return NextResponse.json({ error: `Phân loại hàng của sản phẩm "${product.name}" không tồn tại. Vui lòng kiểm tra lại.` }, { status: 400 });
         }
+        unitPrice = variants[0].price;
+        variantName = variants[0].name;
+        availableStock = variants[0].stock;
       }
 
       // Check stock
-      if (product.stock < quantity) {
-        return NextResponse.json({ error: `Sản phẩm "${product.name}" không đủ tồn kho (còn ${product.stock})` }, { status: 400 });
+      if (availableStock < quantity) {
+        if (variant_id) {
+          return NextResponse.json({ error: `Sản phẩm "${product.name}" (phân loại: ${variantName}) không đủ tồn kho (còn ${availableStock})` }, { status: 400 });
+        } else {
+          return NextResponse.json({ error: `Sản phẩm "${product.name}" không đủ tồn kho (còn ${availableStock})` }, { status: 400 });
+        }
       }
 
       const lineTotal = unitPrice * quantity;
@@ -143,6 +145,12 @@ export async function POST(request) {
 
     // Deduct stock
     for (const item of validatedItems) {
+      if (item.variant_id) {
+        await query(
+          'UPDATE product_variants SET stock = stock - ? WHERE id = ?',
+          [item.quantity, item.variant_id]
+        );
+      }
       await query(
         'UPDATE products SET stock = stock - ?, sold_count = sold_count + ? WHERE id = ?',
         [item.quantity, item.quantity, item.product_id]
@@ -185,12 +193,7 @@ export async function POST(request) {
 // GET /api/orders  — Admin list all orders / Member list their own orders
 export async function GET(request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('admin_token')?.value || cookieStore.get('auth_token')?.value;
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    const user = await verifyToken(token);
+    const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

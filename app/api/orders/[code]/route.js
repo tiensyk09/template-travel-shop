@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { verifyToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { getAuthUser } from '@/lib/auth';
 
 // GET /api/orders/[code]
 export async function GET(request, { params }) {
   try {
     const { code } = await params;
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
-    const user = token ? await verifyToken(token) : null;
+    const user = await getAuthUser();
 
     const orders = await query('SELECT * FROM orders WHERE order_code = ?', [code]);
     if (!orders.length) {
@@ -49,9 +46,7 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const { code } = await params;
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
-    const user = token ? await verifyToken(token) : null;
+    const user = await getAuthUser();
 
     if (!user || (user.role !== 'admin' && user.role !== 'mod')) {
       return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 });

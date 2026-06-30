@@ -208,30 +208,30 @@ export default function AdminCouponsPage() {
 
       {/* Add Coupon Modal */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: '12px', width: '100%', maxWidth: '600px', padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', borderBottom: '1px solid #27272a', paddingBottom: '12px', marginBottom: '20px' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div className="adm-modal-container" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', width: '100%', maxWidth: '600px', padding: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--admin-text)', borderBottom: '1px solid var(--admin-border)', paddingBottom: '12px', marginBottom: '20px' }}>
               Tạo Mã Giảm Giá Mới
             </h3>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="adm-grid-2">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Mã giảm giá *</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Mã giảm giá *</label>
                   <input
                     type="text"
                     required
                     value={form.code}
                     onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                     placeholder="SALE20"
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px', textTransform: 'uppercase' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px', textTransform: 'uppercase' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Loại giảm giá *</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Loại giảm giá *</label>
                   <select
                     value={form.discount_type}
                     onChange={(e) => setForm({ ...form, discount_type: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px', cursor: 'pointer' }}
                   >
                     <option value="percent">Phần trăm (%)</option>
                     <option value="fixed">Số tiền cố định (đ)</option>
@@ -239,63 +239,63 @@ export default function AdminCouponsPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="adm-grid-2">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Giá trị giảm *</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Giá trị giảm *</label>
                   <input
                     type="number"
                     required
                     value={form.discount_value}
                     onChange={(e) => setForm({ ...form, discount_value: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Đơn hàng tối thiểu</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Đơn hàng tối thiểu</label>
                   <input
                     type="number"
                     value={form.min_order}
                     onChange={(e) => setForm({ ...form, min_order: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="adm-grid-2">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Giảm tối đa (Fixed)</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Giảm tối đa (Fixed)</label>
                   <input
                     type="number"
                     disabled={form.discount_type !== 'percent'}
                     value={form.max_discount}
                     onChange={(e) => setForm({ ...form, max_discount: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px' }}
                     placeholder="Không giới hạn"
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Giới hạn lượt dùng</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Giới hạn lượt dùng</label>
                   <input
                     type="number"
                     value={form.usage_limit}
                     onChange={(e) => setForm({ ...form, usage_limit: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px' }}
                     placeholder="Không giới hạn"
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>Ngày hết hạn</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Ngày hết hạn</label>
                 <input
                   type="date"
                   value={form.expires_at}
                   onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
-                  style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px', cursor: 'pointer' }}
+                  style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px', cursor: 'pointer' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #27272a', paddingTop: '16px', marginTop: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--admin-border)', paddingTop: '16px', marginTop: '10px' }}>
                 <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-secondary">Hủy</button>
                 <button type="submit" className="btn btn-primary">Lưu Coupon</button>
               </div>

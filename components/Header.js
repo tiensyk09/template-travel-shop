@@ -10,6 +10,37 @@ export default function Header() {
   const { totalItems, subtotal, wishlist } = useCart();
   const wishlistCount = wishlist ? wishlist.length : 0;
 
+  const [user, setUser] = useState(null);
+
+  React.useEffect(() => {
+    async function checkUser() {
+      try {
+        const res = await fetch('/api/auth/login');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            setUser(data.user);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check auth state in header:', err);
+      }
+    }
+    checkUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('/api/auth/login', { method: 'DELETE' });
+      if (res.ok) {
+        setUser(null);
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Failed to log out:', err);
+    }
+  };
+
   const categories = [
     { title: 'Sâm Ngọc Linh', icon: '🌱', link: '/products?category=sam-ngoc-linh' },
     { title: 'Sâm Dây Ngọc Linh', icon: '🍠', link: '/products?category=sam-day' },
@@ -77,13 +108,32 @@ export default function Header() {
 
           {/* User Actions */}
           <div className="lc-user-actions-container" style={{ display: 'flex', alignItems: 'center', gap: 20, flexShrink: 0 }}>
-            <Link href="/login" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
-              <span style={{ fontSize: 22 }}>👤</span>
-              <div>
-                <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 500, lineHeight: 1.2 }}>Tài khoản</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1f2937', lineHeight: 1.2 }}>Đăng nhập</div>
+            {user ? (
+              <div className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#374151' }}>
+                <span style={{ fontSize: 22 }}>👤</span>
+                <div>
+                  <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 500, lineHeight: 1.2 }}>Chào, {user.displayName || user.username}</div>
+                  <div style={{ fontSize: 12, display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                    <Link href="/orders" style={{ fontSize: 11, fontWeight: 700, color: '#0f766e', textDecoration: 'none' }}>Đơn hàng</Link>
+                    <span style={{ color: '#d1d5db', fontSize: 10 }}>|</span>
+                    <button
+                      onClick={handleLogout}
+                      style={{ background: 'none', border: 'none', padding: 0, fontSize: 11, fontWeight: 700, color: '#dc2626', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
               </div>
-            </Link>
+            ) : (
+              <Link href="/login" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
+                <span style={{ fontSize: 22 }}>👤</span>
+                <div>
+                  <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 500, lineHeight: 1.2 }}>Tài khoản</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1f2937', lineHeight: 1.2 }}>Đăng nhập</div>
+                </div>
+              </Link>
+            )}
 
             <Link href="/wishlist" className="lc-header-action-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#374151' }}>
               <div style={{ position: 'relative' }}>
@@ -214,6 +264,24 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
+
+            {user ? (
+              <div style={{ padding: '12px 0', borderBottom: '1px solid #f3f4f6', fontSize: 14 }}>
+                <div style={{ fontWeight: 600, color: '#1f2937' }}>👤 Chào, {user.displayName || user.username}</div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                  <Link href="/orders" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#0d6832', textDecoration: 'none', fontWeight: 700, fontSize: 13 }}>Đơn hàng của bạn</Link>
+                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} style={{ background: 'none', border: 'none', padding: 0, color: '#dc2626', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>Đăng xuất</button>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{ display: 'block', padding: '12px 0', fontSize: 14, fontWeight: 700, color: '#1f2937', borderBottom: '1px solid #f3f4f6', textDecoration: 'none' }}
+              >
+                👤 Đăng nhập
+              </Link>
+            )}
             
             {/* Mobile Categories list inside Drawer */}
             <div style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '16px' }}>

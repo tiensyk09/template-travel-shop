@@ -12,6 +12,8 @@ export default function CartPageClient() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [validationError, setValidationError] = useState('');
+  const [invalidItems, setInvalidItems] = useState({});
 
   // Auto-recalculate discount if subtotal changes
   useEffect(() => {
@@ -72,6 +74,41 @@ export default function CartPageClient() {
   const shippingFee = subtotal >= 500000 ? 0 : 30000;
   const finalTotal = Math.max(0, subtotal - couponDiscount + shippingFee);
 
+  // Validate items on mount/cart update
+  useEffect(() => {
+    if (!hydrated || items.length === 0) return;
+
+    async function validateCartItems() {
+      try {
+        const res = await fetch('/api/orders/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: items.map(i => ({
+              product_id: i.product_id,
+              variant_id: i.variant_id,
+              quantity: i.quantity
+            }))
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          if (!data.success) {
+            setValidationError(data.error);
+            setInvalidItems(data.invalidItems || {});
+          } else {
+            setValidationError('');
+            setInvalidItems({});
+          }
+        }
+      } catch (err) {
+        console.error('Failed to validate cart items:', err);
+      }
+    }
+
+    validateCartItems();
+  }, [items, hydrated]);
+
   const handleCheckout = () => {
     localStorage.setItem('lc_checkout_pricing', JSON.stringify({
       subtotal,
@@ -105,6 +142,12 @@ export default function CartPageClient() {
         <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#1a2e1e', marginBottom: '20px' }}>
           Giỏ Hàng Của Bạn ({items.length} sản phẩm)
         </h1>
+
+        {validationError && (
+          <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '12px 20px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', fontWeight: 600 }}>
+            ⚠️ {validationError}
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div style={{ background: '#fff', borderRadius: '16px', padding: '60px 20px', textAlign: 'center', border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
@@ -153,6 +196,11 @@ export default function CartPageClient() {
                       <div style={{ marginTop: '6px', fontSize: '13.5px', fontWeight: 700, color: '#6b7280' }}>
                         Đơn giá: {item.unit_price.toLocaleString('vi-VN')}đ
                       </div>
+                      {invalidItems[item.key] && (
+                        <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#ef4444', fontWeight: 600 }}>
+                          ⚠️ {invalidItems[item.key]}
+                        </div>
+                      )}
                     </div>
 
                     {/* Quantity + Price total + Action */}
@@ -296,17 +344,19 @@ export default function CartPageClient() {
 
                 <button
                   onClick={handleCheckout}
+                  disabled={!!validationError}
                   style={{
                     width: '100%',
                     marginTop: '20px',
                     padding: '14px',
                     borderRadius: '30px',
                     border: 'none',
-                    background: '#d97706',
+                    background: !!validationError ? '#9ca3af' : '#d97706',
                     color: '#fff',
                     fontSize: '15px',
                     fontWeight: 700,
-                    cursor: 'pointer',
+                    cursor: !!validationError ? 'not-allowed' : 'pointer',
+                    opacity: !!validationError ? 0.7 : 1,
                     transition: 'all 0.2s',
                     display: 'flex',
                     alignItems: 'center',

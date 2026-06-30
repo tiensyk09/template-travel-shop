@@ -67,6 +67,19 @@ export async function PUT(request, { params }) {
       flash_sale_end, tags, meta_title, meta_description, status
     } = body;
 
+    if (!name || !price) {
+      return NextResponse.json({ error: 'Thiếu tên hoặc giá sản phẩm' }, { status: 400 });
+    }
+
+    // Kiểm tra tên sản phẩm bị trùng với sản phẩm khác (không phân biệt hoa thường)
+    const existing = await query(
+      "SELECT id FROM products WHERE LOWER(name) = LOWER(?) AND id != ?",
+      [name.trim(), id]
+    );
+    if (existing && existing.length > 0) {
+      return NextResponse.json({ error: 'Tên sản phẩm đã được sử dụng bởi sản phẩm khác' }, { status: 400 });
+    }
+
     await query(
       `UPDATE products SET 
         category_id = ?, name = ?, short_description = ?, description = ?,

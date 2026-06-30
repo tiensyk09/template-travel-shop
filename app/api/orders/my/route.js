@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { verifyToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { getAuthUser } from '@/lib/auth';
 
 // GET /api/orders/my — User's order history
 export async function GET(request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
-    const user = token ? await verifyToken(token) : null;
+    const user = await getAuthUser();
 
     if (!user) {
       return NextResponse.json({ error: 'Vui lòng đăng nhập', requireLogin: true }, { status: 401 });

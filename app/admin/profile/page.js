@@ -109,40 +109,40 @@ export default function ProfilePage() {
           <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="adm-form-group">
               <label className="adm-label">Username</label>
-              <input type="text" className="adm-input" value={user?.username || ''} disabled style={{ background: 'rgba(255, 255, 255, 0.02)', cursor: 'not-allowed', color: 'var(--admin-muted)' }} />
+              <input type="text" className="adm-input" value={user?.username || ''} disabled style={{ background: '#f1f5f9', cursor: 'not-allowed', color: 'var(--admin-muted)', border: '1px solid #cbd5e1' }} />
               <span style={{ fontSize: '11px', color: 'var(--admin-muted)' }}>Username cannot be changed.</span>
             </div>
 
             <div className="adm-form-group">
               <label className="adm-label">Display Name <span style={{ color: 'var(--admin-danger)' }}>*</span></label>
-              <input type="text" className="adm-input" value={displayName} onChange={e => setDisplayName(e.target.value)} required placeholder="Your name..." />
+              <input type="text" className="adm-input" value={displayName} onChange={e => setDisplayName(e.target.value)} required placeholder="Your name..." style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)' }} />
             </div>
 
             <div className="adm-form-group">
               <label className="adm-label">Email Address</label>
-              <input type="email" className="adm-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="yourname@example.com" />
+              <input type="email" className="adm-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="yourname@example.com" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)' }} />
             </div>
 
             <div style={{ borderTop: '1px solid var(--admin-border)', padding: '10px 0' }} />
 
-            <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700' }}>🔐 Change Password</h4>
+            <h4 style={{ color: 'var(--admin-text)', fontSize: '16px', fontWeight: '700' }}>🔐 Change Password</h4>
             <span style={{ fontSize: '12px', color: 'var(--admin-muted)', display: 'block', lineHeight: '1.5' }}>
               Only fill out these fields if you want to update your current password. Passwords must be at least 8 characters long, contain at least 1 uppercase letter, and at least 1 special character.
             </span>
 
             <div className="adm-form-group">
               <label className="adm-label">Current Password</label>
-              <input type="password" className="adm-input" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Enter current password..." autocomplete="current-password" />
+              <input type="password" className="adm-input" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Enter current password..." autoComplete="current-password" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)' }} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div className="adm-form-group">
                 <label className="adm-label">New Password</label>
-                <input type="password" className="adm-input" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password..." autocomplete="new-password" />
+                <input type="password" className="adm-input" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password..." autoComplete="new-password" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)' }} />
               </div>
               <div className="adm-form-group">
                 <label className="adm-label">Confirm New Password</label>
-                <input type="password" className="adm-input" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-type new password..." autocomplete="new-password" />
+                <input type="password" className="adm-input" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-type new password..." autoComplete="new-password" style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)' }} />
               </div>
             </div>
 

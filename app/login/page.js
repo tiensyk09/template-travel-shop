@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function UserLoginPage() {
+function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,8 @@ export default function UserLoginPage() {
         setError(data.error || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
         return;
       }
-      router.push('/');
+      const redirectUrl = searchParams.get('redirect') || '/';
+      router.push(redirectUrl);
     } catch {
       setError('Không thể kết nối đến máy chủ. Vui lòng thử lại.');
     } finally {
@@ -211,7 +213,10 @@ export default function UserLoginPage() {
           <Link href="/" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>
             ← Về trang chủ
           </Link>
-          <Link href="/register" style={{ fontSize: '13px', color: '#fbbf24', fontWeight: 600, textDecoration: 'none' }}>
+          <Link 
+            href={searchParams.get('redirect') ? `/register?redirect=${encodeURIComponent(searchParams.get('redirect'))}` : '/register'} 
+            style={{ fontSize: '13px', color: '#fbbf24', fontWeight: 600, textDecoration: 'none' }}
+          >
             Tạo tài khoản →
           </Link>
         </div>
@@ -234,5 +239,25 @@ export default function UserLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UserLoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Inter', sans-serif",
+        background: 'linear-gradient(135deg, #052e16 0%, #064e3b 40%, #0d6832 70%, #1a3a1a 100%)',
+        color: '#fff'
+      }}>
+        Đang tải...
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   );
 }

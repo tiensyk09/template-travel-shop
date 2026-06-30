@@ -16,6 +16,7 @@ const navItems = [
   { href: '/admin/members', label: 'Member Directory', icon: '👥' },
   { href: '/admin/pages', label: 'Page Builder', icon: '🎨' },
   { href: '/admin/settings', label: 'Global Settings', icon: '⚙️' },
+  { href: '/admin/plugins', label: 'Plugin System', icon: '🧩' },
   { section: 'NAVIGATION' },
   { href: '/', label: 'Return to Homepage', icon: '⚡' },
 ];
@@ -23,13 +24,25 @@ const navItems = [
 export default function AdminShell({ children, title = 'Dashboard' }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('admin_user');
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
   const [loggingOut, setLoggingOut] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     checkAuth();
-  }, []);
+  }, [pathname]); // run on pathname change to ensure fresh check
 
   async function checkAuth() {
     try {
@@ -45,16 +58,20 @@ export default function AdminShell({ children, title = 'Dashboard' }) {
         }
         
         setUser(data.user);
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
       } else {
+        localStorage.removeItem('admin_user');
         router.push('/login');
       }
     } catch {
+      localStorage.removeItem('admin_user');
       router.push('/login');
     }
   }
 
   async function handleLogout() {
     setLoggingOut(true);
+    localStorage.removeItem('admin_user');
     await fetch('/api/auth/login', { method: 'DELETE' });
     router.push('/login');
   }
@@ -64,15 +81,14 @@ export default function AdminShell({ children, title = 'Dashboard' }) {
     return pathname.startsWith(href);
   };
 
-  const initials = user?.displayName
+  const isStaff = mounted && (user?.role === 'admin' || user?.role === 'mod');
+
+  const initials = mounted && user?.displayName
     ? user.displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
 
   const roleLabel = { admin: 'Administrator', mod: 'Moderator', member: 'Member' };
   
-  // Custom dashboard for normal members
-  const isStaff = user?.role === 'admin' || user?.role === 'mod';
-
   return (
     <div className="admin-layout-root">
       {/* Background neon glows */}
@@ -128,7 +144,7 @@ export default function AdminShell({ children, title = 'Dashboard' }) {
 
         {/* User profile card */}
         <div className="sidebar-user">
-          {user ? (
+          {mounted && user ? (
             <div>
               <div className="sidebar-user-info">
                 <div className="sidebar-avatar">{initials}</div>

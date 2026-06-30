@@ -14,8 +14,14 @@ export async function GET(request) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
+    const showAll = searchParams.get('show_all') === 'true';
+    const user = await getAuthUser();
+    const isStaff = user && (user.role === 'admin' || user.role === 'mod');
 
-    let conditions = ["p.status = 'active'"];
+    let conditions = [];
+    if (!showAll || !isStaff) {
+      conditions.push("p.status = 'active'");
+    }
     let params = [];
 
     if (category) {
@@ -94,6 +100,15 @@ export async function POST(request) {
 
     if (!name || !price) {
       return NextResponse.json({ error: 'Thiếu tên hoặc giá sản phẩm' }, { status: 400 });
+    }
+
+    // Kiểm tra tên sản phẩm bị trùng (không phân biệt hoa thường)
+    const existing = await query(
+      "SELECT id FROM products WHERE LOWER(name) = LOWER(?)",
+      [name.trim()]
+    );
+    if (existing && existing.length > 0) {
+      return NextResponse.json({ error: 'Tên sản phẩm đã tồn tại trong hệ thống' }, { status: 400 });
     }
 
     // Auto-generate slug from name if not provided

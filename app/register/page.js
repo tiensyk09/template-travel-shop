@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({ username: '', password: '', displayName: '', email: '', tier: 'Free' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,8 +34,9 @@ export default function RegisterPage() {
         setError(data.error || 'Đăng ký thất bại. Vui lòng thử lại.');
         return;
       }
-      // Successfully authenticated and registered, redirect to home
-      router.push('/');
+      // Successfully authenticated and registered, redirect to destination
+      const redirectUrl = searchParams.get('redirect') || '/';
+      router.push(redirectUrl);
     } catch {
       setError('Không thể kết nối đến máy chủ đăng ký.');
     } finally {
@@ -255,11 +257,34 @@ export default function RegisterPage() {
           <Link href="/" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>
             ← Về trang chủ
           </Link>
-          <Link href="/login" style={{ fontSize: '13px', color: '#0d6832', fontWeight: 600, textDecoration: 'none' }}>
+          <Link 
+            href={searchParams.get('redirect') ? `/login?redirect=${encodeURIComponent(searchParams.get('redirect'))}` : '/login'} 
+            style={{ fontSize: '13px', color: '#0d6832', fontWeight: 600, textDecoration: 'none' }}
+          >
             Đã có tài khoản? →
           </Link>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Inter', sans-serif",
+        background: 'linear-gradient(135deg, #052e16 0%, #064e3b 40%, #0d6832 70%, #1a3a1a 100%)',
+        color: '#fff'
+      }}>
+        Đang tải...
+      </div>
+    }>
+      <RegisterPageContent />
+    </Suspense>
   );
 }

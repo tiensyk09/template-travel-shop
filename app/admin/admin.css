@@ -126,8 +126,8 @@
 }
 
 .sidebar-link:hover {
-  color: var(--admin-text);
-  background-color: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-link.active {
@@ -1517,6 +1517,66 @@ input:checked + .toggle-slider:before {
   }
   .post-editor-sidebar {
     order: -1;
+  }
+}
+
+/* Custom Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Firefox scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Responsive Grid for Admin Modals */
+.adm-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.adm-grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+.adm-grid-12-1 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+.adm-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.adm-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .adm-grid-2, .adm-grid-2-1, .adm-grid-12-1, .adm-grid-3, .adm-grid-4 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .adm-modal-container {
+    padding: 16px !important;
+    max-height: 95vh !important;
   }
 }
 

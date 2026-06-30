@@ -120,13 +120,13 @@ export default function AdminOrdersPage() {
             placeholder="Tìm mã đơn hàng, tên khách hàng, SĐT..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ flex: 1, padding: '8px 12px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '6px' }}
+            style={{ flex: 1, padding: '8px 12px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '6px' }}
           />
           <select
             className="adm-filter-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: '8px 12px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '6px' }}
+            style={{ padding: '8px 12px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '6px' }}
           >
             <option value="all">Tất cả trạng thái</option>
             <option value="pending">Chờ xác nhận</option>
@@ -206,59 +206,59 @@ export default function AdminOrdersPage() {
 
       {/* Edit Order Modal */}
       {isModalOpen && selectedOrder && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: '12px', width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', borderBottom: '1px solid #27272a', paddingBottom: '12px', marginBottom: '20px' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div className="adm-modal-container" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', padding: '24px', color: 'var(--admin-text)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--admin-text)', borderBottom: '1px solid var(--admin-border)', paddingBottom: '12px', marginBottom: '20px' }}>
               Xử lý Đơn hàng: {selectedOrder.order_code}
             </h3>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '20px' }}>
+            <div className="adm-grid-12-1" style={{ marginBottom: '20px' }}>
               {/* Customer Details */}
-              <div style={{ background: '#27272a', padding: '16px', borderRadius: '8px', border: '1px solid #3f3f46', fontSize: '13.5px', color: '#e4e4e7' }}>
-                <h4 style={{ margin: '0 0 12px 0', borderBottom: '1px solid #3f3f46', paddingBottom: '6px', color: '#fff' }}>
+              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid var(--admin-border)', fontSize: '13.5px', color: 'var(--admin-text)' }}>
+                <h4 style={{ margin: '0 0 12px 0', borderBottom: '1px solid var(--admin-border)', paddingBottom: '6px', color: 'var(--admin-text)' }}>
                   Thông tin giao nhận
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div>Khách hàng: <strong>{selectedOrder.customer_name}</strong></div>
-                  <div>Điện thoại: <strong>{selectedOrder.customer_phone}</strong></div>
-                  {selectedOrder.customer_email && <div>Email: {selectedOrder.customer_email}</div>}
-                  <div>Địa chỉ: {selectedOrder.shipping_address}, {selectedOrder.shipping_province}</div>
-                  {selectedOrder.shipping_note && <div style={{ color: 'var(--lc-orange)' }}>Ghi chú: {selectedOrder.shipping_note}</div>}
-                  <div>Phương thức thanh toán: <strong style={{ textTransform: 'uppercase' }}>{selectedOrder.payment_method}</strong></div>
+                  <div>Khách hàng: <strong style={{ color: 'var(--admin-text)' }}>{selectedOrder.customer_name}</strong></div>
+                  <div>Điện thoại: <strong style={{ color: 'var(--admin-text)' }}>{selectedOrder.customer_phone}</strong></div>
+                  {selectedOrder.customer_email && <div>Email: <span style={{ color: 'var(--admin-text)' }}>{selectedOrder.customer_email}</span></div>}
+                  <div>Địa chỉ: <span style={{ color: 'var(--admin-text)' }}>{selectedOrder.shipping_address}, {selectedOrder.shipping_province}</span></div>
+                  {selectedOrder.shipping_note && <div style={{ color: 'var(--admin-secondary)' }}>Ghi chú: {selectedOrder.shipping_note}</div>}
+                  <div>Phương thức thanh toán: <strong style={{ textTransform: 'uppercase', color: 'var(--admin-text)' }}>{selectedOrder.payment_method}</strong></div>
                 </div>
               </div>
 
               {/* Items Summary */}
-              <div style={{ background: '#27272a', padding: '16px', borderRadius: '8px', border: '1px solid #3f3f46', fontSize: '13px', color: '#e4e4e7' }}>
-                <h4 style={{ margin: '0 0 12px 0', borderBottom: '1px solid #3f3f46', paddingBottom: '6px', color: '#fff' }}>
+              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid var(--admin-border)', fontSize: '13px', color: 'var(--admin-text)' }}>
+                <h4 style={{ margin: '0 0 12px 0', borderBottom: '1px solid var(--admin-border)', paddingBottom: '6px', color: 'var(--admin-text)' }}>
                   Sản phẩm đã mua
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '150px', overflowY: 'auto' }}>
                   {selectedOrder.items.map((it, idx) => (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #3f3f46', paddingBottom: '4px' }}>
-                      <span>{it.product_name} ({it.variant_name}) x{it.quantity}</span>
-                      <span style={{ fontWeight: 600 }}>{it.line_total?.toLocaleString('vi-VN') || (it.unit_price * it.quantity).toLocaleString('vi-VN')}đ</span>
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed var(--admin-border)', paddingBottom: '4px', color: 'var(--admin-text)' }}>
+                      <span style={{ color: '#475569' }}>{it.product_name} ({it.variant_name}) x{it.quantity}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--admin-text)' }}>{it.line_total?.toLocaleString('vi-VN') || (it.unit_price * it.quantity).toLocaleString('vi-VN')}đ</span>
                     </div>
                   ))}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px', borderTop: '1px solid #3f3f46', paddingTop: '8px', fontSize: '12.5px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px', borderTop: '1px solid var(--admin-border)', paddingTop: '8px', fontSize: '12.5px', color: 'var(--admin-muted)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>Tạm tính:</span>
-                    <span>{selectedOrder.subtotal.toLocaleString('vi-VN')}đ</span>
+                    <span style={{ color: 'var(--admin-text)' }}>{selectedOrder.subtotal.toLocaleString('vi-VN')}đ</span>
                   </div>
                   {selectedOrder.discount_amount > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#4ade80' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
                       <span>Mã giảm giá:</span>
-                      <span>-{selectedOrder.discount_amount.toLocaleString('vi-VN')}đ</span>
+                      <span style={{ fontWeight: 600 }}>-{selectedOrder.discount_amount.toLocaleString('vi-VN')}đ</span>
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>Phí ship:</span>
-                    <span>{selectedOrder.shipping_fee.toLocaleString('vi-VN')}đ</span>
+                    <span style={{ color: 'var(--admin-text)' }}>{selectedOrder.shipping_fee.toLocaleString('vi-VN')}đ</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '14px', color: '#fff', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '14px', color: 'var(--admin-text)', marginTop: '4px' }}>
                     <span>Tổng tiền:</span>
-                    <span style={{ color: 'var(--lc-orange, #f57c00)' }}>{selectedOrder.total.toLocaleString('vi-VN')}đ</span>
+                    <span style={{ color: 'var(--admin-secondary, #d97706)' }}>{selectedOrder.total.toLocaleString('vi-VN')}đ</span>
                   </div>
                 </div>
               </div>
@@ -266,15 +266,15 @@ export default function AdminOrdersPage() {
 
             {/* Status Editing Form */}
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="adm-grid-2">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                     Trạng thái Đơn hàng *
                   </label>
                   <select
                     value={form.status}
                     onChange={(e) => setForm({ ...form, status: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px', cursor: 'pointer' }}
                   >
                     <option value="pending">Chờ xác nhận (Pending)</option>
                     <option value="confirmed">Đã xác nhận (Confirmed)</option>
@@ -284,13 +284,13 @@ export default function AdminOrdersPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                     Trạng thái Thanh toán *
                   </label>
                   <select
                     value={form.payment_status}
                     onChange={(e) => setForm({ ...form, payment_status: e.target.value })}
-                    style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px', cursor: 'pointer' }}
                   >
                     <option value="pending">Chờ thanh toán (Pending)</option>
                     <option value="paid">Đã thanh toán (Paid)</option>
@@ -300,20 +300,20 @@ export default function AdminOrdersPage() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#a1a1aa', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                   Ghi chú của Admin / Cửa hàng
                 </label>
                 <textarea
                   rows="3"
                   value={form.admin_note}
                   onChange={(e) => setForm({ ...form, admin_note: e.target.value })}
-                  style={{ width: '100%', padding: '10px', background: '#27272a', border: '1px solid #3f3f46', color: '#fff', borderRadius: '8px', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: 'var(--admin-text)', borderRadius: '8px', resize: 'vertical' }}
                   placeholder="Ghi chú nội bộ: Mã vận đơn, lý do hủy đơn..."
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #27272a', paddingTop: '16px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-secondary">Đóng</button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--admin-border)', paddingTop: '16px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-secondary" style={{ color: 'var(--admin-text)', borderColor: 'var(--admin-border)' }}>Đóng</button>
                 <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
               </div>
             </form>

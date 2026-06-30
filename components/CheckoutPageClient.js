@@ -6,7 +6,7 @@ import { useCart } from '@/components/CartContext';
 
 export default function CheckoutPageClient() {
   const router = useRouter();
-  const { items, subtotal, clearCart, hydrated } = useCart();
+  const { items, subtotal, clearCart, hydrated, removeItem } = useCart();
 
   const [form, setForm] = useState({
     name: '',
@@ -28,6 +28,8 @@ export default function CheckoutPageClient() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [validationError, setValidationError] = useState('');
+  const [invalidItems, setInvalidItems] = useState({});
   const [orderSuccess, setOrderSuccess] = useState(null);
 
   // Load pricing info
@@ -77,6 +79,41 @@ export default function CheckoutPageClient() {
       router.push('/cart');
     }
   }, [items, orderSuccess, router]);
+
+  // Validate items on mount/cart update
+  useEffect(() => {
+    if (!hydrated || items.length === 0) return;
+
+    async function validateCartItems() {
+      try {
+        const res = await fetch('/api/orders/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: items.map(i => ({
+              product_id: i.product_id,
+              variant_id: i.variant_id,
+              quantity: i.quantity
+            }))
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          if (!data.success) {
+            setValidationError(data.error);
+            setInvalidItems(data.invalidItems || {});
+          } else {
+            setValidationError('');
+            setInvalidItems({});
+          }
+        }
+      } catch (err) {
+        console.error('Failed to validate cart items on checkout load:', err);
+      }
+    }
+
+    validateCartItems();
+  }, [items, hydrated]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -239,9 +276,15 @@ export default function CheckoutPageClient() {
           Thông Tin Đặt Hàng & Thanh Toán
         </h1>
 
+        {validationError && (
+          <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '12px 20px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', fontWeight: 600 }}>
+            ⚠️ {validationError}
+          </div>
+        )}
+
         {errorMsg && (
           <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '12px 20px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', fontWeight: 600 }}>
-            {errorMsg}
+            ⚠️ {errorMsg}
           </div>
         )}
 
@@ -370,16 +413,45 @@ export default function CheckoutPageClient() {
             </h3>
 
             {/* Items List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px', maxHeight: '240px', overflowY: 'auto', paddingRight: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
               {items.map((item) => (
-                <div key={item.key} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '13.5px', borderBottom: '1px dashed #f3f4f6', paddingBottom: '8px' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, color: '#1a2e1e', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
-                      {item.product_name}
+                <div key={item.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <img
+                      src={item.thumbnail || '/images/default.png'}
+                      alt={item.product_name}
+                      style={{ width: '48px', height: '48px', objectFit: 'contain', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '2px', backgroundColor: '#fff' }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 600, color: '#374151' }}>{item.product_name}</span>
+                      <span style={{ fontSize: '11px', color: '#6b7280' }}>
+                        Đơn vị: {item.variant_name || 'Hộp'} x {item.quantity}
+                      </span>
+                      {invalidItems[item.key] && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                          <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 600 }}>
+                            ⚠️ {invalidItems[item.key]}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.key)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#dc2626',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              padding: 0,
+                              textDecoration: 'underline',
+                              fontFamily: 'inherit'
+                            }}
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <span style={{ fontSize: '11px', color: '#6b7280' }}>
-                      Đơn vị: {item.variant_name || 'Hộp'} x {item.quantity}
-                    </span>
                   </div>
                   <div style={{ fontWeight: 700, color: '#0d6832', marginLeft: '12px', flexShrink: 0 }}>
                     {(item.unit_price * item.quantity).toLocaleString('vi-VN')}đ
@@ -412,19 +484,19 @@ export default function CheckoutPageClient() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !!validationError}
               style={{
                 width: '100%',
                 marginTop: '24px',
                 padding: '14px',
                 borderRadius: '30px',
                 border: 'none',
-                background: '#d97706',
+                background: !!validationError ? '#9ca3af' : '#d97706',
                 color: '#fff',
                 fontSize: '15px',
                 fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
+                cursor: (loading || !!validationError) ? 'not-allowed' : 'pointer',
+                opacity: (loading || !!validationError) ? 0.7 : 1,
                 transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
