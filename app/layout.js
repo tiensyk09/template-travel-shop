@@ -1,6 +1,7 @@
 import './globals.css';
 import { CartProvider } from '@/components/CartContext';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import PluginRunner from '@/components/PluginRunner';
 
 export const metadata = {
   title: 'Sâm Ngọc Linh - Đặc Sản & Dược Liệu Kon Tum',
@@ -15,8 +16,10 @@ export default function RootLayout({ children }) {
           <LayoutWrapper>
             {children}
           </LayoutWrapper>
+          <PluginRunner />
         </CartProvider>
       </body>
     </html>
   );
 }
+

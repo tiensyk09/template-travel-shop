@@ -13,7 +13,7 @@ export async function GET() {
     });
 
     const siteName = config.site_name || 'hcc-danang';
-    const managerUrl = (config.manager_url || 'http://localhost:3000').replace(/\/+$/, '');
+    const managerUrl = (config.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
 
     // 1. Fetch available plugins in store
     const storeRes = await fetch(`${managerUrl}/api/plugins`, {
@@ -61,7 +61,7 @@ export async function POST(req) {
     });
 
     const siteName = config.site_name || 'hcc-danang';
-    const managerUrl = (config.manager_url || 'http://localhost:3000').replace(/\/+$/, '');
+    const managerUrl = (config.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
 
     if (action === 'install') {
       const res = await fetch(`${managerUrl}/api/plugins/install`, {
@@ -114,7 +114,7 @@ export async function PATCH(req) {
     });
 
     const siteName = config.site_name || 'hcc-danang';
-    const managerUrl = (config.manager_url || 'http://localhost:3000').replace(/\/+$/, '');
+    const managerUrl = (config.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
 
     const res = await fetch(`${managerUrl}/api/plugins/configure`, {
       method: 'PATCH',

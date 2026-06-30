@@ -153,7 +153,15 @@ export default function FilesPage() {
     const res = await fetch('/api/files', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, file_size: sizeKB }),
+      body: JSON.stringify({
+        name: form.name,
+        url: form.url,
+        folder: form.folder,
+        file_type: form.type,
+        file_size: sizeKB,
+        description: form.description,
+        is_public: form.is_public
+      }),
     });
     if (res.ok) {
       showMsg('success', '✅ File uploaded successfully!');
@@ -502,11 +510,11 @@ export default function FilesPage() {
             <form onSubmit={handleUpload}>
               <div className="adm-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="adm-form-group">
-                  <label className="adm-label">Select local file</label>
-                  <div className="img-upload-zone" onClick={() => fileRef.current?.click()}>
-                    <div className="img-upload-icon">📁</div>
-                    <div className="img-upload-text">Click to browse file<br />
-                      <span style={{ fontSize: 11 }}>Images, PDF, Documents, Code — Max 10MB</span>
+                  <label className="adm-label" style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>Select local file</label>
+                  <div className="img-upload-zone" onClick={() => fileRef.current?.click()} style={{ border: '2px dashed #475569', background: 'rgba(255, 255, 255, 0.03)', color: '#e2e8f0', cursor: 'pointer', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
+                    <div className="img-upload-icon" style={{ fontSize: '24px', marginBottom: '8px' }}>📁</div>
+                    <div className="img-upload-text" style={{ color: '#cbd5e1' }}>Click to browse file<br />
+                      <span style={{ fontSize: 11, color: '#94a3b8' }}>Images, PDF, Documents, Code — Max 10MB</span>
                     </div>
                   </div>
                   <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={handleFileInput} />
@@ -519,19 +527,19 @@ export default function FilesPage() {
                 )}
 
                 <div className="adm-form-group">
-                  <label className="adm-label">Or enter direct URL</label>
+                  <label className="adm-label" style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>Or enter direct URL</label>
                   <input className="adm-input" placeholder="https://..." value={form.url}
                     onChange={e => { setForm({ ...form, url: e.target.value }); setImgPreview(e.target.value); }} />
                 </div>
 
                 <div style={{ display: 'flex', gap: '16px' }}>
                   <div className="adm-form-group" style={{ flex: 1 }}>
-                    <label className="adm-label">Display Name *</label>
+                    <label className="adm-label" style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>Display Name *</label>
                     <input className="adm-input" value={form.name}
                       onChange={e => setForm({ ...form, name: e.target.value })} required />
                   </div>
                   <div className="adm-form-group" style={{ flex: 1 }}>
-                    <label className="adm-label">Storage Category</label>
+                    <label className="adm-label" style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>Storage Category</label>
                     <select className="adm-select" value={form.folder}
                       onChange={e => setForm({ ...form, folder: e.target.value })}>
                       {categories.map(c => (
@@ -542,7 +550,7 @@ export default function FilesPage() {
                 </div>
 
                 <div className="adm-form-group">
-                  <label className="adm-label">File Type</label>
+                  <label className="adm-label" style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>File Type</label>
                   <select className="adm-select" value={form.type}
                     onChange={e => setForm({ ...form, type: e.target.value })}>
                     <option value="image">🖼️ Image</option>
@@ -559,7 +567,7 @@ export default function FilesPage() {
                 </div>
 
                 <div className="adm-form-group">
-                  <label className="adm-label">Description</label>
+                  <label className="adm-label" style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: '600' }}>Description</label>
                   <textarea className="adm-textarea" style={{ minHeight: 60 }} placeholder="Write a short description..." value={form.description}
                     onChange={e => setForm({ ...form, description: e.target.value })} />
                 </div>
@@ -567,7 +575,7 @@ export default function FilesPage() {
                 <div className="adm-form-group" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 }}>
                   <input type="checkbox" id="upload-is-public" checked={form.is_public === 1}
                     onChange={e => setForm({ ...form, is_public: e.target.checked ? 1 : 0 })} style={{ width: 'auto', margin: 0 }} />
-                  <label htmlFor="upload-is-public" className="adm-label" style={{ marginBottom: 0, cursor: 'pointer', fontSize: 13 }}>Share publicly (Allow visitors to download)</label>
+                  <label htmlFor="upload-is-public" className="adm-label" style={{ marginBottom: 0, cursor: 'pointer', fontSize: 13, color: '#cbd5e1', fontWeight: '600' }}>Share publicly (Allow visitors to download)</label>
                 </div>
               </div>
               <div className="adm-modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
