@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 
 /* ─────────────────────────────────────────────
    GEMINI AI CHAT WIDGET
-   Hiển thị nút chat nổi + cửa sổ chat AI
+   Chat trực tiếp qua /api/plugins/gemini-assistant/chat
+   — API key được giữ an toàn phía server (D1)
 ───────────────────────────────────────────── */
-function GeminiChatWidget({ managerUrl, siteName }) {
+function GeminiChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'ai', text: 'Xin chào! Tôi là trợ lý AI. Tôi có thể giúp gì cho bạn? 😊' }
@@ -21,10 +22,11 @@ function GeminiChatWidget({ managerUrl, siteName }) {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
     try {
-      const res = await fetch(`${managerUrl}/plugins/gemini-assistant/chat`, {
+      // Gọi API nội bộ của chính website — API key giữ phía server, không lộ ra frontend
+      const res = await fetch('/api/plugins/gemini-assistant/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg, site: siteName })
+        body: JSON.stringify({ message: userMsg })
       });
       const data = await res.json();
       setMessages(prev => [...prev, {
@@ -40,7 +42,6 @@ function GeminiChatWidget({ managerUrl, siteName }) {
 
   return (
     <>
-      {/* Chat Window */}
       {open && (
         <div style={{
           position: 'fixed', bottom: '88px', right: '20px',
@@ -51,7 +52,6 @@ function GeminiChatWidget({ managerUrl, siteName }) {
           zIndex: 9998, overflow: 'hidden',
           fontFamily: 'system-ui, sans-serif'
         }}>
-          {/* Header */}
           <div style={{
             background: 'linear-gradient(135deg, #10b981, #059669)',
             padding: '14px 16px', display: 'flex',
@@ -75,17 +75,13 @@ function GeminiChatWidget({ managerUrl, siteName }) {
             }}>×</button>
           </div>
 
-          {/* Messages */}
           <div style={{
             flex: 1, overflowY: 'auto', padding: '12px',
             display: 'flex', flexDirection: 'column', gap: '8px',
             maxHeight: '320px', background: '#f8fffe'
           }}>
             {messages.map((m, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start'
-              }}>
+              <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
                   maxWidth: '78%', padding: '8px 12px',
                   borderRadius: m.role === 'user' ? '12px 12px 4px 12px' : '12px 12px 12px 4px',
@@ -103,16 +99,14 @@ function GeminiChatWidget({ managerUrl, siteName }) {
               <div style={{ display: 'flex', gap: '4px', padding: '8px 12px' }}>
                 {[0,1,2].map(i => (
                   <div key={i} style={{
-                    width: 7, height: 7, borderRadius: '50%',
-                    background: '#10b981', opacity: 0.6,
-                    animation: `bounce 1s ease-in-out ${i * 0.2}s infinite`
+                    width: 7, height: 7, borderRadius: '50%', background: '#10b981',
+                    animation: `pluginBounce 1s ease-in-out ${i * 0.2}s infinite`
                   }}/>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Input */}
           <form onSubmit={sendMessage} style={{
             padding: '10px 12px', borderTop: '1px solid #e5e7eb',
             display: 'flex', gap: '8px', background: '#fff'
@@ -122,24 +116,22 @@ function GeminiChatWidget({ managerUrl, siteName }) {
               onChange={e => setInput(e.target.value)}
               placeholder="Nhập câu hỏi của bạn..."
               style={{
-                flex: 1, padding: '8px 12px', border: '1px solid #d1fae5',
-                borderRadius: '20px', fontSize: '13px', outline: 'none',
-                background: '#f8fffe'
+                flex: 1, padding: '8px 12px',
+                border: '1px solid #d1fae5', borderRadius: '20px',
+                fontSize: '13px', outline: 'none', background: '#f8fffe'
               }}
             />
             <button type="submit" disabled={loading || !input.trim()} style={{
               width: 36, height: 36, borderRadius: '50%',
               background: input.trim() ? '#10b981' : '#d1d5db',
               border: 'none', cursor: input.trim() ? 'pointer' : 'default',
-              color: '#fff', fontSize: '16px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background 0.2s', flexShrink: 0
+              color: '#fff', fontSize: '16px', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>➤</button>
           </form>
         </div>
       )}
 
-      {/* Floating Button */}
       <button onClick={() => setOpen(o => !o)} style={{
         position: 'fixed', bottom: '20px', right: '20px',
         width: 56, height: 56, borderRadius: '50%',
@@ -147,18 +139,13 @@ function GeminiChatWidget({ managerUrl, siteName }) {
         border: 'none', cursor: 'pointer',
         boxShadow: '0 4px 20px rgba(16,185,129,0.4)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '24px', zIndex: 9999,
-        transition: 'transform 0.2s, box-shadow 0.2s'
-      }}
-        onMouseEnter={e => { e.target.style.transform = 'scale(1.1)'; e.target.style.boxShadow = '0 6px 28px rgba(16,185,129,0.5)'; }}
-        onMouseLeave={e => { e.target.style.transform = 'scale(1)'; e.target.style.boxShadow = '0 4px 20px rgba(16,185,129,0.4)'; }}
-        title="Chat với AI"
-      >
+        fontSize: '24px', zIndex: 9999, transition: 'transform 0.2s'
+      }} title="Chat với AI">
         {open ? '✕' : '🤖'}
       </button>
 
       <style>{`
-        @keyframes bounce {
+        @keyframes pluginBounce {
           0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
           40% { transform: translateY(-6px); opacity: 1; }
         }
@@ -169,47 +156,52 @@ function GeminiChatWidget({ managerUrl, siteName }) {
 
 /* ─────────────────────────────────────────────
    GOOGLE ANALYTICS 4 WIDGET
-   Tự inject GA4 script khi plugin được cài
 ───────────────────────────────────────────── */
-function GoogleAnalyticsWidget({ pluginConfig }) {
+function GoogleAnalyticsWidget({ measurementId }) {
   useEffect(() => {
-    const measurementId = pluginConfig?.MEASUREMENT_ID;
     if (!measurementId || typeof window === 'undefined') return;
-    if (document.getElementById('ga4-script')) return;
-
-    const script1 = document.createElement('script');
-    script1.id = 'ga4-script';
-    script1.async = true;
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-    document.head.appendChild(script1);
-
-    const script2 = document.createElement('script');
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${measurementId}');
-    `;
-    document.head.appendChild(script2);
-  }, [pluginConfig]);
-
-  return null; // Không render gì cả, chỉ inject script
+    if (document.getElementById('ga4-plugin-script')) return;
+    const s1 = document.createElement('script');
+    s1.id = 'ga4-plugin-script';
+    s1.async = true;
+    s1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    document.head.appendChild(s1);
+    const s2 = document.createElement('script');
+    s2.innerHTML = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${measurementId}');`;
+    document.head.appendChild(s2);
+  }, [measurementId]);
+  return null;
 }
 
 /* ─────────────────────────────────────────────
    MAIN PLUGIN RUNNER
-   Fetch installed plugins và render từng widget
+   Đọc plugin đã cài từ D1 của website (/api/plugins)
+   Render widget tương ứng cho từng plugin active
 ───────────────────────────────────────────── */
 export default function PluginRunner() {
   const [plugins, setPlugins] = useState([]);
-  const [meta, setMeta] = useState({ managerUrl: '', siteName: '' });
+  const [gaMeasurementId, setGaMeasurementId] = useState('');
 
   useEffect(() => {
     fetch('/api/plugins')
       .then(r => r.json())
-      .then(data => {
+      .then(async data => {
         setPlugins(data.installed || []);
-        setMeta({ managerUrl: data.managerUrl || '', siteName: data.siteName || '' });
+
+        // Google Analytics cần measurementId — fetch từ admin API (có auth cookie)
+        const gaPlugin = (data.installed || []).find(p => p.id === 'analytics-google');
+        if (gaPlugin?.hasConfig) {
+          try {
+            const r2 = await fetch('/api/admin/plugins');
+            if (r2.ok) {
+              const d2 = await r2.json();
+              const gaInstalled = (d2.installed || []).find(p => p.id === 'analytics-google');
+              if (gaInstalled?.config?.MEASUREMENT_ID) {
+                setGaMeasurementId(gaInstalled.config.MEASUREMENT_ID);
+              }
+            }
+          } catch { /* not logged in — skip GA */ }
+        }
       })
       .catch(() => {});
   }, []);
@@ -219,20 +211,9 @@ export default function PluginRunner() {
       {plugins.map(plugin => {
         switch (plugin.id) {
           case 'gemini-assistant':
-            return (
-              <GeminiChatWidget
-                key={plugin.id}
-                managerUrl={meta.managerUrl}
-                siteName={meta.siteName}
-              />
-            );
+            return <GeminiChatWidget key={plugin.id} />;
           case 'analytics-google':
-            return (
-              <GoogleAnalyticsWidget
-                key={plugin.id}
-                pluginConfig={plugin.config}
-              />
-            );
+            return <GoogleAnalyticsWidget key={plugin.id} measurementId={gaMeasurementId} />;
           default:
             return null;
         }

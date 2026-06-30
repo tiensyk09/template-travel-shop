@@ -1,94 +1,93 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getAuthUser, requireAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET: Lấy danh sách plugin khả dụng và đã cài từ central manager
-export async function GET() {
+// ─── Helper: đọc manager_url từ settings ─────────────────────────────────────
+async function getManagerUrl() {
   try {
-    const rows = await query("SELECT `key`, `value` FROM settings WHERE `key` IN ('site_name', 'manager_url')");
-    const config = {};
-    rows.forEach(r => {
-      config[r.key] = r.value;
-    });
+    const rows = await query("SELECT `key`, `value` FROM settings WHERE `key` IN ('manager_url')");
+    const cfg = {};
+    rows.forEach(r => { cfg[r.key] = r.value; });
+    return (cfg.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
+  } catch {
+    return 'https://autoweb.tubecreate.com';
+  }
+}
 
-    const siteName = config.site_name || 'hcc-danang';
-    const managerUrl = (config.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
+// ─── GET: Lấy plugin từ store + danh sách đã cài từ DB riêng của website ─────
+export async function GET() {
+  const user = await getAuthUser();
+  const authErr = requireAuth(user, 'mod');
+  if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
 
-    // 1. Fetch available plugins in store
-    const storeRes = await fetch(`${managerUrl}/api/plugins`, {
-      headers: { 'X-User-Email': 'admin@tubecreate.com' },
-      next: { revalidate: 0 }
-    });
-    if (!storeRes.ok) {
-      throw new Error(`Failed to fetch plugins from manager: ${storeRes.statusText}`);
+  try {
+    const managerUrl = await getManagerUrl();
+
+    // 1. Fetch danh sách plugin marketplace từ manager (chỉ list, không lưu trạng thái)
+    let storePlugins = [];
+    try {
+      const storeRes = await fetch(`${managerUrl}/api/plugins`, {
+        headers: { 'X-User-Email': user.email || 'admin' },
+        next: { revalidate: 0 }
+      });
+      if (storeRes.ok) {
+        const storeData = await storeRes.json();
+        storePlugins = storeData.plugins || [];
+      }
+    } catch {
+      // Manager không phản hồi → vẫn hoạt động với DB local
     }
-    const storeData = await storeRes.json();
 
-    // 2. Fetch installed plugins on this site
-    const installedRes = await fetch(`${managerUrl}/api/plugins/installed/${siteName}`, {
-      headers: { 'X-User-Email': 'admin@tubecreate.com' },
-      next: { revalidate: 0 }
-    });
-    if (!installedRes.ok) {
-      throw new Error(`Failed to fetch installed plugins: ${installedRes.statusText}`);
-    }
-    const installedData = await installedRes.json();
+    // 2. Đọc plugin đã cài từ D1 của chính website này
+    const rows = await query('SELECT id, name, version, config, active, installed_at FROM installed_plugins WHERE active = 1');
+    const installed = rows.map(r => ({
+      id: r.id,
+      name: r.name,
+      version: r.version,
+      config: typeof r.config === 'string' ? JSON.parse(r.config) : (r.config || {}),
+      installedAt: r.installed_at
+    }));
 
-    return NextResponse.json({
-      plugins: storeData.plugins || [],
-      installed: installedData.installed || []
-    });
+    return NextResponse.json({ plugins: storePlugins, installed });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// POST: Thực hiện cài đặt (install) hoặc gỡ cài đặt (uninstall) plugin
+// ─── POST: Cài đặt (install) hoặc Gỡ (uninstall) — lưu vào D1 của website ───
 export async function POST(req) {
+  const user = await getAuthUser();
+  const authErr = requireAuth(user, 'mod');
+  if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
+
   try {
-    const body = await req.json();
-    const { action, pluginId, config: pluginConfig } = body;
-
-    if (!pluginId) {
-      return NextResponse.json({ error: 'Plugin ID is required' }, { status: 400 });
-    }
-
-    const rows = await query("SELECT `key`, `value` FROM settings WHERE `key` IN ('site_name', 'manager_url')");
-    const config = {};
-    rows.forEach(r => {
-      config[r.key] = r.value;
-    });
-
-    const siteName = config.site_name || 'hcc-danang';
-    const managerUrl = (config.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
+    const { action, pluginId, pluginName, pluginVersion, config: pluginConfig } = await req.json();
+    if (!pluginId) return NextResponse.json({ error: 'Plugin ID is required' }, { status: 400 });
 
     if (action === 'install') {
-      const res = await fetch(`${managerUrl}/api/plugins/install`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Email': 'admin@tubecreate.com'
-        },
-        body: JSON.stringify({ site: siteName, pluginId, config: pluginConfig })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Install failed');
-      return NextResponse.json(data);
-    } 
-    
+      // Đảm bảo bảng tồn tại (auto-create nếu chưa có)
+      await query(`
+        CREATE TABLE IF NOT EXISTS installed_plugins (
+          id TEXT PRIMARY KEY, name TEXT NOT NULL, version TEXT DEFAULT '1.0.0',
+          config TEXT DEFAULT '{}', active INTEGER NOT NULL DEFAULT 1,
+          installed_at DATETIME DEFAULT (datetime('now'))
+        )
+      `);
+
+      // Upsert vào D1
+      await query(
+        `REPLACE INTO installed_plugins (id, name, version, config, active) VALUES (?, ?, ?, ?, 1)`,
+        [pluginId, pluginName || pluginId, pluginVersion || '1.0.0', JSON.stringify(pluginConfig || {})]
+      );
+
+      return NextResponse.json({ success: true, message: `Đã cài plugin "${pluginName || pluginId}"` });
+    }
+
     if (action === 'uninstall') {
-      const res = await fetch(`${managerUrl}/api/plugins/uninstall`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Email': 'admin@tubecreate.com'
-        },
-        body: JSON.stringify({ site: siteName, pluginId })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Uninstall failed');
-      return NextResponse.json(data);
+      await query('DELETE FROM installed_plugins WHERE id = ?', [pluginId]);
+      return NextResponse.json({ success: true, message: `Đã gỡ plugin "${pluginId}"` });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -97,36 +96,24 @@ export async function POST(req) {
   }
 }
 
-// PATCH: Cập nhật cấu hình (configuration) của plugin đã cài
+// ─── PATCH: Cập nhật config plugin — lưu vào D1 của website ─────────────────
 export async function PATCH(req) {
-  try {
-    const body = await req.json();
-    const { pluginId, config: pluginConfig } = body;
+  const user = await getAuthUser();
+  const authErr = requireAuth(user, 'mod');
+  if (authErr) return NextResponse.json({ error: authErr.error }, { status: authErr.status });
 
+  try {
+    const { pluginId, config: pluginConfig } = await req.json();
     if (!pluginId || !pluginConfig) {
       return NextResponse.json({ error: 'Plugin ID and config are required' }, { status: 400 });
     }
 
-    const rows = await query("SELECT `key`, `value` FROM settings WHERE `key` IN ('site_name', 'manager_url')");
-    const config = {};
-    rows.forEach(r => {
-      config[r.key] = r.value;
-    });
+    await query(
+      'UPDATE installed_plugins SET config = ? WHERE id = ?',
+      [JSON.stringify(pluginConfig), pluginId]
+    );
 
-    const siteName = config.site_name || 'hcc-danang';
-    const managerUrl = (config.manager_url || 'https://autoweb.tubecreate.com').replace(/\/+$/, '');
-
-    const res = await fetch(`${managerUrl}/api/plugins/configure`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Email': 'admin@tubecreate.com'
-      },
-      body: JSON.stringify({ site: siteName, pluginId, config: pluginConfig })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Configure failed');
-    return NextResponse.json(data);
+    return NextResponse.json({ success: true, message: 'Config đã được cập nhật' });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
